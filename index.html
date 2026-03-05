@@ -698,17 +698,12 @@ footer span{background:linear-gradient(90deg,#b36cff,#43c0ff);-webkit-background
     <h2 class="sec-title">Standings &amp; Scores</h2>
     <p class="sec-sub">Live standings updated in real-time as matches are played.</p>
 
-    <div id="results-placeholder" class="results-coming">
-      <div class="big-icon">🏓</div>
-      <h3>Tournament hasn't started yet</h3>
-      <p>Results and standings will appear here once matches begin. Stay tuned — it's going to be a great one!</p>
+    <div id="recent-matches-wrap" style="display:none;margin-bottom:40px;">
+      <div class="standings-title" style="margin-bottom:16px;">Recent Matches</div>
+      <div id="recent-matches" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
 
-    <div id="live-results" style="display:none;">
-      <div class="standings-title" style="margin-bottom:16px;">Recent Matches</div>
-      <div id="recent-matches" style="display:flex;flex-direction:column;gap:8px;margin-bottom:40px;"></div>
-      <div id="standings-wrap"></div>
-    </div>
+    <div id="standings-wrap"></div>
   </div>
 </section>
 
@@ -825,12 +820,9 @@ footer span{background:linear-gradient(90deg,#b36cff,#43c0ff);-webkit-background
   onValue(ref(db,'matches'), snap => {
     const matches = snap.val();
     const hasAny = matches && Object.values(matches).some(m=>m.status==='done');
-    document.getElementById('results-placeholder').style.display = hasAny?'none':'block';
-    document.getElementById('live-results').style.display = hasAny?'block':'none';
-    if(hasAny){
-      renderStandings(calcStandings(matches));
-      renderRecent(matches);
-    }
+    document.getElementById('recent-matches-wrap').style.display = hasAny?'block':'none';
+    renderStandings(calcStandings(matches));
+    if(hasAny) renderRecent(matches);
   });
 </script>
 
