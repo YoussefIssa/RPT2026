@@ -71,7 +71,7 @@ body::after{
 @keyframes twinkle{0%,100%{opacity:.07;transform:scale(1)}50%{opacity:1;transform:scale(2)}}
 
 /* ── LANTERNS ───────────────────────────── */
-.lanterns{position:fixed;top:0;left:0;right:0;height:90px;z-index:2;pointer-events:none;display:flex;justify-content:space-around;align-items:flex-start;padding:0 40px;}
+.lanterns{position:fixed;top:0;left:0;right:0;height:90px;z-index:1;pointer-events:none;display:flex;justify-content:space-around;align-items:flex-start;padding:0 40px;}
 .lantern{display:flex;flex-direction:column;align-items:center;animation:sway 4s ease-in-out infinite;animation-delay:var(--d,0s);transform-origin:top center;}
 .ls{width:1px;height:24px;background:linear-gradient(180deg,rgba(132,75,255,.7),rgba(67,192,255,.15));}
 .lb{font-size:22px;filter:drop-shadow(0 0 10px rgba(132,75,255,.65));}
@@ -113,7 +113,7 @@ section{position:relative;z-index:1;min-height:100vh;padding:120px 48px 80px;}
 #hero{
   display:flex;flex-direction:column;align-items:center;
   justify-content:center;text-align:center;
-  padding-top:0;min-height:100vh;
+  padding-top:80px;min-height:100vh;
 }
 .hero-emoji{
   display:inline-flex;align-items:center;gap:12px;margin-bottom:24px;
