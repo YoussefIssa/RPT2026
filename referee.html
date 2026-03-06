@@ -83,6 +83,8 @@ body::before{
 .match-pick-btn:hover{border-color:rgba(132,75,255,.5);background:rgba(132,75,255,.07);transform:translateX(3px);}
 .match-pick-btn.done{border-color:rgba(46,204,113,.3);}
 .match-pick-btn.live{border-color:rgba(67,192,255,.5);box-shadow:0 0 16px rgba(67,192,255,.1);}
+.match-pick-btn.locked{opacity:.5;cursor:not-allowed;pointer-events:none;}
+.s-locked{color:#ff6b6b;background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);}
 .pick-time{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);white-space:nowrap;}
 .pick-teams{font-size:14px;font-weight:500;color:var(--text);}
 .pick-teams em{color:var(--muted);font-style:normal;font-size:12px;margin:0 5px;}
@@ -388,13 +390,14 @@ const SUNDAY = [
   {id:'C6',group:'C',court:2,time:'22:00',team1:'الشناوي للبدل و التنس الطاولة', team2:'F&K'},
 ];
 const MONDAY = [
-  {id:'QF1',group:'KO',court:1,time:'20:00',team1:'1A',   team2:'Best 3rd ★'},
-  {id:'QF2',group:'KO',court:2,time:'20:00',team1:'1B',   team2:'2C'},
-  {id:'QF3',group:'KO',court:1,time:'20:25',team1:'1C',   team2:'2A'},
-  {id:'QF4',group:'KO',court:2,time:'20:25',team1:'2B',   team2:'Best 3rd ★'},
-  {id:'SF1',group:'KO',court:1,time:'20:55',team1:'W QF1',team2:'W QF2'},
-  {id:'SF2',group:'KO',court:2,time:'20:55',team1:'W QF3',team2:'W QF4'},
-  {id:'FIN',group:'KO',court:1,time:'21:30',team1:'W SF1',team2:'W SF2'},
+  {id:'QF1',group:'KO',court:1,time:'20:00',        team1:'1A',       team2:'Best 3rd ★'},
+  {id:'QF2',group:'KO',court:2,time:'20:00',        team1:'1B',       team2:'2C'},
+  {id:'QF3',group:'KO',court:1,time:'~After QF1/2', team1:'1C',       team2:'2A'},
+  {id:'QF4',group:'KO',court:2,time:'~After QF1/2', team1:'2B',       team2:'Best 3rd ★'},
+  {id:'SF1',group:'KO',court:1,time:'~After QFs',   team1:'W QF1',    team2:'W QF2'},
+  {id:'SF2',group:'KO',court:2,time:'~After QFs',   team1:'W QF3',    team2:'W QF4'},
+  {id:'3RD',group:'KO',court:1,time:'~After SFs',   team1:'Loser SF1',team2:'Loser SF2'},
+  {id:'FIN',group:'KO',court:2,time:'~After SFs',   team1:'W SF1',    team2:'W SF2'},
 ];
 const ALL = [...SUNDAY,...MONDAY];
 const GRP_CLS = {A:'grp-a',B:'grp-b',C:'grp-c',KO:'grp-ko'};
@@ -499,7 +502,8 @@ window.saveAndFinish = async function() {
   await set(fbRef,{
     status:'done', team1:S.team1, team2:S.team2,
     games_t1:gw1, games_t2:gw2,
-    setScores:S.setScores, completedAt:Date.now()
+    setScores:S.setScores, completedAt:Date.now(),
+    lockedBy:null
   });
   document.getElementById('match-over').classList.remove('show');
   toast('✓ Saved! Results updated live.','success');
@@ -569,29 +573,38 @@ function updateDisplay() {
 let pickerUnsubscribe = null;
 function renderPicker(md) {
   md=md||{};
+  cachedMatchData = md;
   [{id:'sunday',list:SUNDAY},{id:'monday',list:MONDAY}].forEach(({id,list})=>{
     document.getElementById(`list-${id}`).innerHTML=list.map(m=>{
       const d=md[m.id]||{};
       const st=d.status||'pending';
       const t1=d.team1||m.team1, t2=d.team2||m.team2;
       const isKO=m.group==='KO';
-      const statusBadge={
-        pending:`<span class="pick-status s-pending">Pending</span>`,
-        live:   `<span class="pick-status s-live">🔴 Live</span>`,
-        done:   `<span class="pick-status s-done">✓ Done</span>`,
-      }[st]||'';
-      const koInputs=isKO?`
+      const isLockedByOther = st==='live' && d.lockedBy && d.lockedBy!==mySessionId;
+      const isLockedByMe    = st==='live' && d.lockedBy && d.lockedBy===mySessionId;
+
+      const statusBadge = isLockedByOther
+        ? `<span class="pick-status s-locked">🔒 In Progress</span>`
+        : {
+            pending:`<span class="pick-status s-pending">Pending</span>`,
+            live:   `<span class="pick-status s-live">🔴 ${isLockedByMe?'You · ':''}Live</span>`,
+            done:   `<span class="pick-status s-done">✓ Done</span>`,
+          }[st]||'';
+
+      const cardClass = isLockedByOther ? 'locked' : st;
+
+      const koInputs=isKO&&!isLockedByOther?`
         <div class="ko-inputs" id="ko-${m.id}">
           <div class="ko-inputs-label">Enter actual team names</div>
           <div class="ko-inputs-grid">
-            <input class="ko-input" id="ko-t1-${m.id}" placeholder="${m.team1}" value="${d.team1&&!['1A','1B','1C','2A','2B','2C','Best 3rd ★','W QF1','W QF2','W QF3','W QF4','W SF1','W SF2'].includes(d.team1)?d.team1:''}" />
-            <input class="ko-input" id="ko-t2-${m.id}" placeholder="${m.team2}" value="${d.team2&&!['1A','1B','1C','2A','2B','2C','Best 3rd ★','W QF1','W QF2','W QF3','W QF4','W SF1','W SF2'].includes(d.team2)?d.team2:''}" />
+            <input class="ko-input" id="ko-t1-${m.id}" placeholder="${m.team1}" value="${d.team1&&!['1A','1B','1C','2A','2B','2C','Best 3rd ★','W QF1','W QF2','W QF3','W QF4','W SF1','W SF2','Loser SF1','Loser SF2'].includes(d.team1)?d.team1:''}" />
+            <input class="ko-input" id="ko-t2-${m.id}" placeholder="${m.team2}" value="${d.team2&&!['1A','1B','1C','2A','2B','2C','Best 3rd ★','W QF1','W QF2','W QF3','W QF4','W SF1','W SF2','Loser SF1','Loser SF2'].includes(d.team2)?d.team2:''}" />
           </div>
           <button class="ko-start-btn" onclick="startKO('${m.id}')">🎾 Start Match</button>
         </div>`:''
       ;
-      return `<div style="border-radius:10px;overflow:hidden;border:1px solid rgba(132,75,255,.2);" class="${st}">
-        <button class="match-pick-btn" style="border:none;border-radius:0;width:100%;" onclick="${isKO?`toggleKO('${m.id}')`:`selectMatch('${m.id}')`}">
+      return `<div style="border-radius:10px;overflow:hidden;border:1px solid rgba(132,75,255,.2);" class="${cardClass}">
+        <button class="match-pick-btn ${cardClass}" style="border:none;border-radius:0;width:100%;" onclick="${isLockedByOther?'':isKO?`toggleKO('${m.id}')`:`selectMatch('${m.id}')`}">
           <div>
             <div class="pick-time">⏰ ${m.time} · C${m.court}</div>
             <span class="pick-grp ${GRP_CLS[m.group]}">${m.group==='KO'?m.id:'Grp '+m.group}</span>
@@ -612,6 +625,10 @@ window.toggleKO = function(id) {
 
 window.startKO = function(id) {
   const m=ALL.find(x=>x.id===id); if(!m) return;
+  const d = cachedMatchData[id]||{};
+  if(d.status==='live' && d.lockedBy && d.lockedBy!==mySessionId){
+    alert('⚠️ This match is already being scored by another referee.'); return;
+  }
   const t1=document.getElementById(`ko-t1-${id}`)?.value.trim()||m.team1;
   const t2=document.getElementById(`ko-t2-${id}`)?.value.trim()||m.team2;
   launchScoring(m,t1,t2);
@@ -619,20 +636,36 @@ window.startKO = function(id) {
 
 window.selectMatch = function(id) {
   const m=ALL.find(x=>x.id===id); if(!m) return;
+  const d = cachedMatchData[id]||{};
+  if(d.status==='live' && d.lockedBy && d.lockedBy!==mySessionId){
+    alert('⚠️ This match is already being scored by another referee.'); return;
+  }
   launchScoring(m,m.team1,m.team2);
 };
+
+// Unique session ID per referee tab
+const mySessionId = Math.random().toString(36).slice(2);
+let cachedMatchData = {};
 
 function launchScoring(m,t1,t2) {
   activeM=m;
   fbRef=ref(db,`matches/${m.id}`);
   S=fresh(m,t1,t2);
   H=[]; document.getElementById('btn-undo').disabled=true;
-  update(fbRef,{status:'live',team1:t1,team2:t2});
+  // Write live status + lock
+  update(fbRef,{status:'live',team1:t1,team2:t2,lockedBy:mySessionId});
   updateDisplay();
   showScreen('scoring');
 }
 
 window.goBack = function() {
+  // Release lock if we own it
+  if(fbRef && activeM){
+    const d = cachedMatchData[activeM.id]||{};
+    if(d.lockedBy===mySessionId && d.status!=='done'){
+      update(fbRef,{status:'pending',lockedBy:null});
+    }
+  }
   S=null; H=[]; activeM=null; fbRef=null;
   showScreen('picker');
 };

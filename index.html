@@ -255,10 +255,11 @@ h1.hero-title{
 
 /* BRACKET */
 .bracket-wrap{overflow-x:auto;padding-bottom:8px;}
-.bracket{display:flex;gap:0;align-items:stretch;min-width:700px;}
-.round{display:flex;flex-direction:column;justify-content:space-around;min-width:200px;}
-.round-title{font-size:10px;font-weight:700;letter-spacing:3px;color:var(--muted);text-align:center;text-transform:uppercase;padding:10px;margin-bottom:14px;background:rgba(132,75,255,.06);border-bottom:1px solid rgba(132,75,255,.18);}
-.match-slot{background:rgba(14,11,29,.92);border:1px solid rgba(132,75,255,.18);border-radius:8px;overflow:hidden;margin:6px 0;flex-shrink:0;backdrop-filter:blur(8px);transition:border-color .2s,box-shadow .2s;}
+.bracket{display:flex;gap:0;align-items:stretch;min-width:780px;}
+.round{display:flex;flex-direction:column;min-width:200px;}
+.round-title{font-size:10px;font-weight:700;letter-spacing:3px;color:var(--muted);text-align:center;text-transform:uppercase;padding:10px;margin-bottom:0;background:rgba(132,75,255,.06);border-bottom:1px solid rgba(132,75,255,.18);}
+.round-body{flex:1;display:flex;flex-direction:column;justify-content:space-around;padding:10px 0;}
+.match-slot{background:rgba(14,11,29,.92);border:1px solid rgba(132,75,255,.18);border-radius:8px;overflow:hidden;flex-shrink:0;backdrop-filter:blur(8px);transition:border-color .2s,box-shadow .2s;}
 .match-slot:hover{border-color:rgba(132,75,255,.44);box-shadow:0 4px 24px rgba(132,75,255,.12);}
 .match-slot .t{padding:9px 14px;font-size:13px;font-weight:500;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:8px;}
 .match-slot .t:last-child{border-bottom:none;}
@@ -268,18 +269,27 @@ h1.hero-title{
 .tc{color:#43c0ff;background:rgba(67,192,255,.14);border:1px solid rgba(67,192,255,.3);}
 .ts{color:#b36cff;background:rgba(132,75,255,.10);border:1px solid rgba(132,75,255,.24);}
 .match-num{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--muted);text-align:center;text-transform:uppercase;background:rgba(132,75,255,.08);padding:4px;}
-.conn{display:flex;flex-direction:column;justify-content:space-around;width:34px;padding-top:44px;}
-.conn-pair{flex:1;position:relative;}
-.conn-pair::before{content:'';position:absolute;right:0;top:25%;height:50%;width:2px;background:rgba(132,75,255,.28);}
-.conn-pair::after{content:'';position:absolute;right:0;top:50%;width:100%;height:2px;background:rgba(132,75,255,.28);}
-.final-wrapper{display:flex;flex-direction:column;justify-content:center;padding:10px 0;}
+/* SVG connectors */
+.conn{width:34px;flex-shrink:0;overflow:visible;}
+.conn svg{width:34px;height:100%;display:block;}
+.final-wrapper{display:flex;flex-direction:column;justify-content:center;padding:10px 0;gap:12px;}
 .final-card{background:rgba(132,75,255,.08);border:1px solid rgba(132,75,255,.5);border-radius:10px;overflow:hidden;box-shadow:0 0 50px rgba(132,75,255,.18);}
 .final-card .match-num{background:linear-gradient(90deg,rgba(132,75,255,.25),rgba(67,192,255,.15));color:#b36cff;letter-spacing:5px;}
 .final-card .t{font-size:14px;}
-.champion-slot{margin-top:14px;background:linear-gradient(135deg,rgba(132,75,255,.12),rgba(67,192,255,.07));border:1px solid rgba(132,75,255,.38);border-radius:8px;padding:18px;text-align:center;}
+.final-top-row{display:flex;gap:10px;align-items:stretch;}
+.champion-slot{background:linear-gradient(135deg,rgba(132,75,255,.12),rgba(67,192,255,.07));border:1px solid rgba(132,75,255,.38);border-radius:10px;padding:14px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:90px;}
 .champion-slot .tsm{font-size:26px;filter:drop-shadow(0 0 14px rgba(132,75,255,.7));}
-.champion-slot .lbl{font-family:var(--ng-eb);font-size:15px;font-weight:700;letter-spacing:5px;display:block;margin-top:8px;background:linear-gradient(90deg,#b36cff,#43c0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.champion-slot .tbd{font-size:10px;letter-spacing:3px;color:var(--muted);margin-top:4px;}
+.champion-slot .lbl{font-family:var(--ng-eb);font-size:12px;font-weight:700;letter-spacing:4px;display:block;margin-top:6px;background:linear-gradient(90deg,#b36cff,#43c0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.final-title-gold{font-size:9px;font-weight:700;letter-spacing:4px;text-transform:uppercase;text-align:center;padding:5px;
+  background:linear-gradient(90deg,rgba(212,168,67,.15),rgba(212,168,67,.05));
+  color:var(--gold);text-shadow:0 0 12px rgba(212,168,67,.9),0 0 24px rgba(212,168,67,.5);
+  animation:goldPulse 2s ease-in-out infinite;}
+@keyframes goldPulse{0%,100%{text-shadow:0 0 8px rgba(212,168,67,.6),0 0 16px rgba(212,168,67,.3);}50%{text-shadow:0 0 16px rgba(212,168,67,1),0 0 32px rgba(212,168,67,.7),0 0 48px rgba(212,168,67,.3);}}
+.champion-stars{display:flex;gap:6px;justify-content:center;margin-top:8px;}
+.champion-stars span{font-size:14px;display:inline-block;animation:starShine 1.6s ease-in-out infinite;filter:drop-shadow(0 0 6px rgba(212,168,67,1));}
+.champion-stars span:nth-child(2){animation-delay:.35s;font-size:18px;}
+.champion-stars span:nth-child(3){animation-delay:.7s;}
+@keyframes starShine{0%,100%{opacity:.25;transform:scale(.7) rotate(-15deg);}50%{opacity:1;transform:scale(1.3) rotate(10deg);filter:drop-shadow(0 0 10px rgba(212,168,67,1)) drop-shadow(0 0 20px rgba(212,168,67,.6));}}
 .qual-note{background:rgba(132,75,255,.07);border-left:3px solid #844bff;padding:14px 20px;border-radius:0 6px 6px 0;font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.75;}
 .qual-note strong{color:#b36cff;}
 
@@ -503,7 +513,6 @@ footer span{background:linear-gradient(90deg,#b36cff,#43c0ff);-webkit-background
         <ul class="rule-body">
           <li>Matches consist of <strong style="color:var(--text)">four games</strong> — "Short Set"</li>
           <li>If games are tied, a <strong style="color:var(--text)">7-point tie-break</strong> set will be played</li>
-          <li><strong style="color:var(--text)">15-minute match limit</strong> — if the timer rings mid-game, finish that game before shaking hands</li>
           <li>More than <strong style="color:var(--text)">5 minutes late</strong> = team is considered withdrawn</li>
         </ul>
       </div>
@@ -525,7 +534,7 @@ footer span{background:linear-gradient(90deg,#b36cff,#43c0ff);-webkit-background
         <ul class="rule-body">
           <li>Matches consist of <strong style="color:var(--text)">six games</strong> — "Normal Set"</li>
           <li>If games are tied, a <strong style="color:var(--text)">7-point tie-break</strong> set will be played</li>
-          <li><strong style="color:var(--text)">25-minute match limit</strong> — if time expires during a game, the game must be completed before the match ends</li>
+          <li><strong style="color:var(--text)">3rd place match</strong> — Both semi-final losers compete for bronze 🥉</li>
           <li><strong style="color:var(--text)">Be Early</strong> — Teams must show up 5 minutes before their scheduled match</li>
         </ul>
       </div>
@@ -577,41 +586,141 @@ footer span{background:linear-gradient(90deg,#b36cff,#43c0ff);-webkit-background
       <div>
         <div class="draw-sub">Knockout Stage</div>
         <div class="bracket-wrap">
-          <div class="bracket">
-            <div class="round">
+          <div class="bracket" id="bracket">
+            <div class="round" id="round-qf">
               <div class="round-title">Quarter-Finals</div>
-              <div class="match-slot"><div class="match-num">QF 1</div><div class="t"><span>1A</span><span class="tag ta">A</span></div><div class="t"><span>3rd Best</span><span class="tag ts">★</span></div></div>
-              <div class="match-slot"><div class="match-num">QF 2</div><div class="t"><span>1B</span><span class="tag tb">B</span></div><div class="t"><span>2C</span><span class="tag tc">C</span></div></div>
-              <div class="match-slot"><div class="match-num">QF 3</div><div class="t"><span>1C</span><span class="tag tc">C</span></div><div class="t"><span>2A</span><span class="tag ta">A</span></div></div>
-              <div class="match-slot"><div class="match-num">QF 4</div><div class="t"><span>2B</span><span class="tag tb">B</span></div><div class="t"><span>3rd Best</span><span class="tag ts">★</span></div></div>
-            </div>
-            <div class="conn"><div class="conn-pair"></div><div class="conn-pair"></div></div>
-            <div class="round">
-              <div class="round-title">Semi-Finals</div>
-              <div style="flex:1;display:flex;flex-direction:column;justify-content:space-around;">
-                <div class="match-slot"><div class="match-num">SF 1</div><div class="t"><span>Winner QF1</span></div><div class="t"><span>Winner QF2</span></div></div>
-                <div class="match-slot"><div class="match-num">SF 2</div><div class="t"><span>Winner QF3</span></div><div class="t"><span>Winner QF4</span></div></div>
+              <div class="round-body">
+                <div class="match-slot" id="qf1"><div class="match-num">QF 1</div><div class="t"><span>1A</span><span class="tag ta">A</span></div><div class="t"><span>3rd Best</span><span class="tag ts">★</span></div></div>
+                <div class="match-slot" id="qf2"><div class="match-num">QF 2</div><div class="t"><span>1B</span><span class="tag tb">B</span></div><div class="t"><span>2C</span><span class="tag tc">C</span></div></div>
+                <div class="match-slot" id="qf3"><div class="match-num">QF 3</div><div class="t"><span>1C</span><span class="tag tc">C</span></div><div class="t"><span>2A</span><span class="tag ta">A</span></div></div>
+                <div class="match-slot" id="qf4"><div class="match-num">QF 4</div><div class="t"><span>2B</span><span class="tag tb">B</span></div><div class="t"><span>3rd Best</span><span class="tag ts">★</span></div></div>
               </div>
             </div>
-            <div class="conn"><div class="conn-pair"></div></div>
-            <div class="round">
-              <div class="round-title">⚡ Grand Final</div>
-              <div class="final-wrapper">
-                <div class="final-card">
-                  <div class="match-num">THE FINAL</div>
-                  <div class="t"><span>Winner SF1</span></div>
-                  <div class="t"><span>Winner SF2</span></div>
+            <div class="conn" id="conn1"></div>
+            <div class="round" id="round-sf">
+              <div class="round-title">Semi-Finals</div>
+              <div class="round-body">
+                <div class="match-slot" id="sf1"><div class="match-num">SF 1</div><div class="t"><span>Winner QF1</span></div><div class="t"><span>Winner QF2</span></div></div>
+                <div class="match-slot" id="sf2"><div class="match-num">SF 2</div><div class="t"><span>Winner QF3</span></div><div class="t"><span>Winner QF4</span></div></div>
+              </div>
+            </div>
+            <div class="conn" id="conn2"></div>
+            <div class="round" id="round-fin" style="min-width:170px;">
+              <div class="round-title">⚡ Finals</div>
+              <div class="round-body" style="justify-content:center;">
+                <div class="match-slot" id="fin" style="border:1px solid rgba(212,168,67,.6);background:rgba(212,168,67,.07);box-shadow:0 0 30px rgba(212,168,67,.25),0 0 60px rgba(212,168,67,.1);animation:goldPulse 2s ease-in-out infinite;">
+                  <div class="match-num" style="background:linear-gradient(90deg,rgba(212,168,67,.25),rgba(212,168,67,.08));color:var(--gold);letter-spacing:2px;animation:goldPulse 2s ease-in-out infinite;">✦ THE FINAL ✦</div>
+                  <div class="t" style="font-size:12px;padding:7px 12px;"><span>Winner SF1</span></div>
+                  <div class="t" style="font-size:12px;padding:7px 12px;"><span>Winner SF2</span></div>
                 </div>
-                <div class="champion-slot">
-                  <div class="tsm">🏆</div>
-                  <span class="lbl">Champion</span>
-                  <div class="tbd">To Be Determined</div>
+              </div>
+            </div>
+            <div class="conn" id="conn3"></div>
+            <div class="round" id="round-champ" style="min-width:120px;">
+              <div class="round-title">🏆</div>
+              <div class="round-body" style="justify-content:center;">
+                <div id="champ-box" style="background:linear-gradient(135deg,rgba(212,168,67,.12),rgba(212,168,67,.05));border:1px solid rgba(212,168,67,.45);border-radius:8px;padding:16px 12px;text-align:center;">
+                  <span style="font-family:var(--ng-eb);font-size:10px;letter-spacing:2px;display:block;margin-bottom:10px;background:linear-gradient(90deg,#b36cff,#43c0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">CHAMPION</span>
+                  <span style="font-size:28px;filter:drop-shadow(0 0 14px rgba(212,168,67,.9));display:block;margin-bottom:10px;">🏆</span>
+                  <div class="champion-stars"><span>★</span><span>★</span><span>★</span></div>
                 </div>
               </div>
             </div>
           </div>
+          <!-- 3rd place sits below the bracket, left-aligned under the Finals column -->
+          <div style="display:flex;margin-top:2px;">
+            <div id="bracket-spacer" style="flex-shrink:0;"></div>
+            <div class="match-slot" style="min-width:170px;border:1px solid rgba(212,168,67,.35);background:rgba(212,168,67,.06);">
+              <div class="match-num" style="background:linear-gradient(90deg,rgba(212,168,67,.2),rgba(212,168,67,.08));color:var(--gold);letter-spacing:2px;">🥉 3RD PLACE</div>
+              <div class="t" style="font-size:12px;padding:7px 12px;"><span>Loser SF1</span></div>
+              <div class="t" style="font-size:12px;padding:7px 12px;"><span>Loser SF2</span></div>
+            </div>
+          </div>
         </div>
       </div>
+
+      <script>
+      function drawBracketConnectors() {
+        const bracket = document.getElementById('bracket');
+        if (!bracket) return;
+
+        function drawConn(connId, fromIds, toId) {
+          const conn = document.getElementById(connId);
+          if (!conn) return;
+          const cRect = conn.getBoundingClientRect();
+          const w = cRect.width || 34;
+          const h = cRect.height;
+          const color = 'rgba(132,75,255,0.45)';
+          let paths = '';
+
+          const fromEls = fromIds.map(id => document.getElementById(id));
+          const toEl = document.getElementById(toId);
+          if (!fromEls.every(Boolean) || !toEl) return;
+
+          const fromMids = fromEls.map(el => {
+            const r = el.getBoundingClientRect();
+            return (r.top + r.height / 2) - cRect.top;
+          });
+          const toMid = (() => {
+            const r = toEl.getBoundingClientRect();
+            return (r.top + r.height / 2) - cRect.top;
+          })();
+          const avgFrom = fromMids.reduce((a,b)=>a+b,0) / fromMids.length;
+          const mx = w / 2;
+
+          if (fromMids.length === 1) {
+            // single: straight horizontal line
+            paths += `<line x1="0" y1="${fromMids[0]}" x2="${w}" y2="${toMid}" stroke="${color}" stroke-width="2"/>`;
+          } else {
+            // multiple: horizontal stub from each source → meet at midpoint vertical → go to target
+            // NO left vertical bar — just stubs + right side vertical + exit line
+            fromMids.forEach(y => {
+              paths += `<line x1="0" y1="${y}" x2="${mx}" y2="${y}" stroke="${color}" stroke-width="2"/>`;
+            });
+            // right-side vertical connecting the stubs
+            const minY = Math.min(...fromMids);
+            const maxY = Math.max(...fromMids);
+            paths += `<line x1="${mx}" y1="${minY}" x2="${mx}" y2="${maxY}" stroke="${color}" stroke-width="2"/>`;
+            // exit line from midpoint to target
+            paths += `<line x1="${mx}" y1="${avgFrom}" x2="${w}" y2="${toMid}" stroke="${color}" stroke-width="2"/>`;
+          }
+
+          conn.innerHTML = `<svg width="${w}" height="${h}" style="overflow:visible;display:block">${paths}</svg>`;
+        }
+
+        // Split conn1 into two halves for QF→SF
+        const c1 = document.getElementById('conn1');
+        if (c1 && !c1.dataset.split) {
+          c1.dataset.split = '1';
+          c1.style.display = 'flex';
+          c1.style.flexDirection = 'column';
+          c1.innerHTML = '<div id="conn1a" style="flex:1"></div><div id="conn1b" style="flex:1"></div>';
+        }
+
+        drawConn('conn1a', ['qf1','qf2'], 'sf1');
+        drawConn('conn1b', ['qf3','qf4'], 'sf2');
+        drawConn('conn2',  ['sf1','sf2'],  'fin');
+        drawConn('conn3',  ['fin'],        'champ-box');
+
+        // Align 3rd place box under the Finals column
+        const spacer = document.getElementById('bracket-spacer');
+        const finCol = document.getElementById('round-fin');
+        const bracketEl = document.getElementById('bracket');
+        if (spacer && finCol && bracketEl) {
+          const bLeft = bracketEl.getBoundingClientRect().left;
+          const fLeft = finCol.getBoundingClientRect().left;
+          spacer.style.width = (fLeft - bLeft) + 'px';
+        }
+      }
+
+      setTimeout(drawBracketConnectors, 150);
+      window.addEventListener('resize', () => {
+        // reset split so it can re-run cleanly
+        const c1 = document.getElementById('conn1');
+        if (c1) { c1.dataset.split = ''; c1.innerHTML = ''; }
+        drawBracketConnectors();
+      });
+      </script>
 
     </div><!-- end draw-layout -->
   </div>
@@ -639,31 +748,31 @@ footer span{background:linear-gradient(90deg,#b36cff,#43c0ff);-webkit-background
           <!-- COURT 1 -->
           <div class="court-col">
             <div class="court-header">🎾 Court 1</div>
-            <div class="match-item"><div class="match-time">20:00 – 20:15</div><div class="match-teams">LOL <span class="vs">vs</span> Power Girls</div><span class="match-grp mg-a">Group A</span></div>
-            <div class="match-item"><div class="match-time">20:15 – 20:30</div><div class="match-teams">Awlad el 7ag Claude <span class="vs">vs</span> بادل فاقد</div><span class="match-grp mg-c">Group C</span></div>
-            <div class="match-item"><div class="match-time">20:30 – 20:45</div><div class="match-teams">Sabek wa Lahek <span class="vs">vs</span> Hertz</div><span class="match-grp mg-b">Group B</span></div>
-            <div class="match-item"><div class="match-time">20:45 – 21:00</div><div class="match-teams">LOL <span class="vs">vs</span> 3antar w Chaddad</div><span class="match-grp mg-a">Group A</span></div>
-            <div class="match-item"><div class="match-time">21:00 – 21:15</div><div class="match-teams">Awlad el 7ag Claude <span class="vs">vs</span> F&amp;K</div><span class="match-grp mg-c">Group C</span></div>
-            <div class="match-item"><div class="match-time">21:15 – 21:30</div><div class="match-teams">Finaira Blaugrana <span class="vs">vs</span> Hertz</div><span class="match-grp mg-b">Group B</span></div>
-            <div class="match-item"><div class="match-time">21:30 – 21:45</div><div class="match-teams">Power Girls <span class="vs">vs</span> 3antar w Chaddad</div><span class="match-grp mg-a">Group A</span></div>
-            <div class="match-item"><div class="match-time">21:45 – 22:00</div><div class="match-teams">بادل فاقد <span class="vs">vs</span> F&amp;K</div><span class="match-grp mg-c">Group C</span></div>
-            <div class="match-item"><div class="match-time">22:00 – 22:15</div><div class="match-teams">Hertz <span class="vs">vs</span> خليها على الله</div><span class="match-grp mg-b">Group B</span></div>
+            <div class="match-item"><div class="match-time">20:00</div><div class="match-teams">LOL <span class="vs">vs</span> Power Girls</div><span class="match-grp mg-a">Group A</span></div>
+            <div class="match-item"><div class="match-time">20:20</div><div class="match-teams">Awlad el 7ag Claude <span class="vs">vs</span> بادل فاقد</div><span class="match-grp mg-c">Group C</span></div>
+            <div class="match-item"><div class="match-time">20:40</div><div class="match-teams">Sabek wa Lahek <span class="vs">vs</span> Hertz</div><span class="match-grp mg-b">Group B</span></div>
+            <div class="match-item"><div class="match-time">21:00</div><div class="match-teams">LOL <span class="vs">vs</span> 3antar w Chaddad</div><span class="match-grp mg-a">Group A</span></div>
+            <div class="match-item"><div class="match-time">21:20</div><div class="match-teams">Awlad el 7ag Claude <span class="vs">vs</span> F&amp;K</div><span class="match-grp mg-c">Group C</span></div>
+            <div class="match-item"><div class="match-time">21:40</div><div class="match-teams">Finaira Blaugrana <span class="vs">vs</span> Hertz</div><span class="match-grp mg-b">Group B</span></div>
+            <div class="match-item"><div class="match-time">22:00</div><div class="match-teams">Power Girls <span class="vs">vs</span> 3antar w Chaddad</div><span class="match-grp mg-a">Group A</span></div>
+            <div class="match-item"><div class="match-time">22:20</div><div class="match-teams">بادل فاقد <span class="vs">vs</span> F&amp;K</div><span class="match-grp mg-c">Group C</span></div>
+            <div class="match-item"><div class="match-time">22:40</div><div class="match-teams">Hertz <span class="vs">vs</span> خليها على الله</div><span class="match-grp mg-b">Group B</span></div>
           </div>
           <!-- COURT 2 -->
           <div class="court-col">
             <div class="court-header">🎾 Court 2</div>
-            <div class="match-item"><div class="match-time">20:00 – 20:15</div><div class="match-teams">Sabek wa Lahek <span class="vs">vs</span> Finaira Blaugrana</div><span class="match-grp mg-b">Group B</span></div>
-            <div class="match-item"><div class="match-time">20:15 – 20:30</div><div class="match-teams">LOL <span class="vs">vs</span> اوس ملح و داب</div><span class="match-grp mg-a">Group A</span></div>
-            <div class="match-item"><div class="match-time">20:30 – 20:45</div><div class="match-teams">Awlad el 7ag Claude <span class="vs">vs</span> الشناوي للبدل و التنس الطاولة</div><span class="match-grp mg-c">Group C</span></div>
-            <div class="match-item"><div class="match-time">20:45 – 21:00</div><div class="match-teams">Sabek wa Lahek <span class="vs">vs</span> خليها على الله</div><span class="match-grp mg-b">Group B</span></div>
-            <div class="match-item"><div class="match-time">21:00 – 21:15</div><div class="match-teams">Power Girls <span class="vs">vs</span> اوس ملح و داب</div><span class="match-grp mg-a">Group A</span></div>
-            <div class="match-item"><div class="match-time">21:15 – 21:30</div><div class="match-teams">بادل فاقد <span class="vs">vs</span> الشناوي للبدل و التنس الطاولة</div><span class="match-grp mg-c">Group C</span></div>
-            <div class="match-item"><div class="match-time">21:30 – 21:45</div><div class="match-teams">Finaira Blaugrana <span class="vs">vs</span> خليها على الله</div><span class="match-grp mg-b">Group B</span></div>
-            <div class="match-item"><div class="match-time">21:45 – 22:00</div><div class="match-teams">اوس ملح و داب <span class="vs">vs</span> 3antar w Chaddad</div><span class="match-grp mg-a">Group A</span></div>
-            <div class="match-item"><div class="match-time">22:00 – 22:15</div><div class="match-teams">الشناوي للبدل و التنس الطاولة <span class="vs">vs</span> F&amp;K</div><span class="match-grp mg-c">Group C</span></div>
+            <div class="match-item"><div class="match-time">20:00</div><div class="match-teams">Sabek wa Lahek <span class="vs">vs</span> Finaira Blaugrana</div><span class="match-grp mg-b">Group B</span></div>
+            <div class="match-item"><div class="match-time">20:20</div><div class="match-teams">LOL <span class="vs">vs</span> اوس ملح و داب</div><span class="match-grp mg-a">Group A</span></div>
+            <div class="match-item"><div class="match-time">20:40</div><div class="match-teams">Awlad el 7ag Claude <span class="vs">vs</span> الشناوي للبدل و التنس الطاولة</div><span class="match-grp mg-c">Group C</span></div>
+            <div class="match-item"><div class="match-time">21:00</div><div class="match-teams">Sabek wa Lahek <span class="vs">vs</span> خليها على الله</div><span class="match-grp mg-b">Group B</span></div>
+            <div class="match-item"><div class="match-time">21:20</div><div class="match-teams">Power Girls <span class="vs">vs</span> اوس ملح و داب</div><span class="match-grp mg-a">Group A</span></div>
+            <div class="match-item"><div class="match-time">21:40</div><div class="match-teams">بادل فاقد <span class="vs">vs</span> الشناوي للبدل و التنس الطاولة</div><span class="match-grp mg-c">Group C</span></div>
+            <div class="match-item"><div class="match-time">22:00</div><div class="match-teams">Finaira Blaugrana <span class="vs">vs</span> خليها على الله</div><span class="match-grp mg-b">Group B</span></div>
+            <div class="match-item"><div class="match-time">22:20</div><div class="match-teams">اوس ملح و داب <span class="vs">vs</span> 3antar w Chaddad</div><span class="match-grp mg-a">Group A</span></div>
+            <div class="match-item"><div class="match-time">22:40</div><div class="match-teams">الشناوي للبدل و التنس الطاولة <span class="vs">vs</span> F&amp;K</div><span class="match-grp mg-c">Group C</span></div>
           </div>
         </div>
-        <div class="schedule-note">⚡ <strong>Not all matches will take the full 15 minutes.</strong> The next match begins as soon as the court is free. Stay ready and be courtside 5 minutes before your slot.</div>
+        <div class="schedule-note">⚡ <strong>Times are approximate.</strong> The next match begins as soon as the court is free. Stay ready and be courtside 5 minutes before your slot.</div>
       </div>
 
       <!-- MONDAY -->
@@ -676,15 +785,16 @@ footer span{background:linear-gradient(90deg,#b36cff,#43c0ff);-webkit-background
           </div>
         </div>
         <div class="knockout-list">
-          <div class="knockout-item"><span class="ko-time">20:00 – 20:25</span><span class="ko-label ko-qf">QF 1</span><span class="ko-teams">1A vs Best 3rd ★</span></div>
-          <div class="knockout-item"><span class="ko-time">20:00 – 20:25</span><span class="ko-label ko-qf">QF 2</span><span class="ko-teams">1B vs 2C</span></div>
-          <div class="knockout-item"><span class="ko-time">20:25 – 20:50</span><span class="ko-label ko-qf">QF 3</span><span class="ko-teams">1C vs 2A</span></div>
-          <div class="knockout-item"><span class="ko-time">20:25 – 20:50</span><span class="ko-label ko-qf">QF 4</span><span class="ko-teams">2B vs Best 3rd ★</span></div>
-          <div class="knockout-item"><span class="ko-time">20:55 – 21:20</span><span class="ko-label ko-sf">SF 1</span><span class="ko-teams">Winner QF1 vs Winner QF2</span></div>
-          <div class="knockout-item"><span class="ko-time">20:55 – 21:20</span><span class="ko-label ko-sf">SF 2</span><span class="ko-teams">Winner QF3 vs Winner QF4</span></div>
-          <div class="knockout-item"><span class="ko-time">21:30 – 22:00</span><span class="ko-label ko-f">🏆 Final</span><span class="ko-teams">Winner SF1 vs Winner SF2</span></div>
+          <div class="knockout-item"><span class="ko-time">20:00</span><span class="ko-label ko-qf">QF 1</span><span class="ko-teams">1A vs Best 3rd ★</span></div>
+          <div class="knockout-item"><span class="ko-time">20:00</span><span class="ko-label ko-qf">QF 2</span><span class="ko-teams">1B vs 2C</span></div>
+          <div class="knockout-item"><span class="ko-time">~After QF1/2</span><span class="ko-label ko-qf">QF 3</span><span class="ko-teams">1C vs 2A</span></div>
+          <div class="knockout-item"><span class="ko-time">~After QF1/2</span><span class="ko-label ko-qf">QF 4</span><span class="ko-teams">2B vs Best 3rd ★</span></div>
+          <div class="knockout-item"><span class="ko-time">~After QFs</span><span class="ko-label ko-sf">SF 1</span><span class="ko-teams">Winner QF1 vs Winner QF2</span></div>
+          <div class="knockout-item"><span class="ko-time">~After QFs</span><span class="ko-label ko-sf">SF 2</span><span class="ko-teams">Winner QF3 vs Winner QF4</span></div>
+          <div class="knockout-item" style="border-left:2px solid rgba(212,168,67,.5);"><span class="ko-time">~After SFs</span><span class="ko-label" style="background:rgba(212,168,67,.12);color:var(--gold);border:1px solid rgba(212,168,67,.3);">🥉 3rd Place</span><span class="ko-teams">Loser SF1 vs Loser SF2</span></div>
+          <div class="knockout-item" style="border-left:2px solid rgba(212,168,67,.8);background:rgba(212,168,67,.04);"><span class="ko-time" style="color:var(--gold);">~After 3rd Place</span><span class="ko-label" style="background:rgba(212,168,67,.15);color:var(--gold);border:1px solid rgba(212,168,67,.5);">🏆 Final</span><span class="ko-teams" style="color:var(--text);">Winner SF1 vs Winner SF2</span></div>
         </div>
-        <div class="schedule-note">🏆 <strong>Knockout matches are 25 minutes max.</strong> Final standings from Sunday determine Monday's bracket.</div>
+        <div class="schedule-note">⚡ <strong>Knockout stage — Normal Set format, no time limit.</strong> 3rd place match and Final are played after both Semi-Finals are complete.</div>
       </div>
 
     </div>
@@ -752,7 +862,7 @@ footer span{background:linear-gradient(90deg,#b36cff,#43c0ff);-webkit-background
   const GROUP_OF = {};
   Object.entries(GROUPS).forEach(([g,teams]) => teams.forEach(t => GROUP_OF[t]=g));
   const TAG_CLS = {A:'gt-a',B:'gt-b',C:'gt-c'};
-  const POS_CLS = ['pos-1','pos-2','pos-3','pos-n','pos-n'];
+  const POS_CLS = ['pos-1','pos-2','pos-3','pos-n'];
 
   function calcStandings(matches) {
     const stats = {};
@@ -783,7 +893,7 @@ footer span{background:linear-gradient(90deg,#b36cff,#43c0ff);-webkit-background
         <table class="standings-table">
           <thead><tr><th>#</th><th>Team</th><th>P</th><th>W</th><th>L</th><th>GW</th><th>PTS</th></tr></thead><tbody>`;
       teams.forEach((t,i) => {
-        const pc = POS_CLS[Math.min(i,POS_CLS.length-1)];
+        const pc = POS_CLS[Math.min(i, POS_CLS.length-1)];
         html+=`<tr>
           <td><span class="pos-badge ${pc}">${i+1}</span></td>
           <td>${t.name} <span class="group-tag ${tc}">${grp}</span></td>
@@ -809,7 +919,7 @@ footer span{background:linear-gradient(90deg,#b36cff,#43c0ff);-webkit-background
       const tc=TAG_CLS[grp]||'';
       const w1=m.games_t1>m.games_t2;
       return `<div style="background:rgba(14,11,29,.88);border:1px solid rgba(132,75,255,.18);border-radius:8px;padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-        ${grp?`<span class="group-tag ${tc}" style="flex-shrink:0">Group ${grp}</span>`:''}
+        ${grp?`<span class="group-tag ${tc}" style="flex-shrink:0">Group ${grp}</span>`:'<span class="group-tag" style="flex-shrink:0;color:var(--gold);background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.3)">KO</span>'}
         <span style="font-size:14px;font-weight:${w1?700:400};color:${w1?'var(--text)':'var(--muted)'};flex:1;min-width:100px">${m.team1}</span>
         <span style="font-size:20px;font-weight:800;color:var(--ph);min-width:60px;text-align:center">${m.games_t1} – ${m.games_t2}</span>
         <span style="font-size:14px;font-weight:${!w1?700:400};color:${!w1?'var(--text)':'var(--muted)'};flex:1;min-width:100px;text-align:right">${m.team2}</span>
