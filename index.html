@@ -927,11 +927,78 @@ footer span{background:linear-gradient(90deg,#b36cff,#43c0ff);-webkit-background
     }).join('');
   }
 
+  function updateBracket(matches) {
+    const stats = calcStandings(matches);
+
+    // Build ranked lists per group
+    const ranked = {};
+    ['A','B','C'].forEach(grp => {
+      ranked[grp] = GROUPS[grp]
+        .map(t => ({name:t,...stats[t]}))
+        .sort((a,b) => b.pts-a.pts || b.gw-a.gw);
+    });
+
+    // Find best 3rd-place team across groups
+    const thirds = ['A','B','C'].map(g => ({...ranked[g][2], grp:g}))
+      .filter(t => t.p > 0)
+      .sort((a,b) => b.pts-a.pts || b.gw-a.gw);
+
+    const resolve = (slot) => {
+      const map = {
+        '1A': ranked.A[0], '2A': ranked.A[1],
+        '1B': ranked.B[0], '2B': ranked.B[1],
+        '1C': ranked.C[0], '2C': ranked.C[1],
+        '3rd Best': thirds[0],
+      };
+      return map[slot]?.name || slot;
+    };
+
+    // QF slot spans: [matchId, [team1slot, team2slot]]
+    const qfSlots = {
+      qf1: ['1A','3rd Best'],
+      qf2: ['1B','2C'],
+      qf3: ['1C','2A'],
+      qf4: ['2B','3rd Best'],
+    };
+
+    Object.entries(qfSlots).forEach(([id, [s1, s2]]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const rows = el.querySelectorAll('.t span:first-child');
+      if (rows[0]) rows[0].textContent = resolve(s1);
+      if (rows[1]) rows[1].textContent = resolve(s2);
+    });
+
+    // Update KO match results in bracket (SF and Final) from Firebase
+    const ko = Object.values(matches||{}).filter(m => m.status==='done' && !GROUP_OF[m.team1]);
+    ko.forEach(m => {
+      // Try to find SF/Final slots and update winner
+      ['sf1','sf2','fin'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const rows = el.querySelectorAll('.t');
+        rows.forEach(row => {
+          const span = row.querySelector('span:first-child');
+          if (!span) return;
+          if (span.textContent === m.team1 || span.textContent === m.team2) {
+            const winner = m.games_t1 > m.games_t2 ? m.team1 : m.team2;
+            rows.forEach(r => {
+              const s = r.querySelector('span:first-child');
+              if (s) s.style.color = s.textContent === winner ? 'var(--text)' : 'var(--muted)';
+              if (s) s.style.fontWeight = s.textContent === winner ? '700' : '400';
+            });
+          }
+        });
+      });
+    });
+  }
+
   onValue(ref(db,'matches'), snap => {
     const matches = snap.val();
     const hasAny = matches && Object.values(matches).some(m=>m.status==='done');
     document.getElementById('recent-matches-wrap').style.display = hasAny?'block':'none';
     renderStandings(calcStandings(matches));
+    updateBracket(matches);
     if(hasAny) renderRecent(matches);
   });
 </script>
