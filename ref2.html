@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RPT 2026 — Referee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #080b10;
+    --surface:  #0f1420;
+    --border:   rgba(255,255,255,.08);
+    --text:     #f0f4ff;
+    --muted:    #5a6380;
+    --accent:   #00d4ff;
+    --green:    #00e87a;
+    --red:      #ff4757;
+    --gold:     #ffc107;
+    --purple:   #7c5cfc;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── SCREENS ─── */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+  #screen-login { align-items: center; justify-content: center; }
+
+  /* ─── LOGIN ─── */
+  .login-wrap {
+    width: 100%; max-width: 360px; padding: 0 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 24px;
+  }
+  .login-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px; letter-spacing: 4px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    line-height: 1;
+  }
+  .login-sub { color: var(--muted); font-size: 13px; letter-spacing: 1px; text-transform: uppercase; text-align: center; }
+  .login-card {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .login-label { font-size: 12px; color: var(--muted); letter-spacing: .8px; text-transform: uppercase; }
+  .login-input {
+    width: 100%; padding: 13px 16px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 16px;
+    outline: none; transition: border-color .2s;
+  }
+  .login-input:focus { border-color: var(--accent); }
+  .btn-enter {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border: none; border-radius: 10px;
+    color: #000; font-family: 'DM Sans', sans-serif;
+    font-size: 15px; font-weight: 700; letter-spacing: .5px;
+    cursor: pointer; transition: opacity .2s, transform .1s;
+  }
+  .btn-enter:hover { opacity: .9; }
+  .btn-enter:active { transform: scale(.98); }
+  .login-error { color: var(--red); font-size: 13px; text-align: center; display: none; }
+
+  /* ─── PICKER ─── */
+  .picker-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 20px 0;
+  }
+  .picker-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px; letter-spacing: 2px; color: var(--accent);
+  }
+  .logout-btn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 14px;
+    color: var(--muted); font-size: 12px; cursor: pointer;
+    transition: border-color .2s, color .2s;
+  }
+  .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+  .picker-body { padding: 16px 20px 40px; display: flex; flex-direction: column; gap: 10px; }
+
+  .round-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--muted);
+    padding: 12px 0 4px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+  }
+  .round-label:first-child { border-top: none; margin-top: 0; }
+
+  .match-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden;
+    transition: border-color .2s;
+  }
+  .match-card:hover { border-color: rgba(255,255,255,.15); }
+  .match-card.done { opacity: .6; }
+  .match-card.live { border-color: var(--red); }
+
+  .match-top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px 10px;
+    gap: 12px;
+  }
+  .match-id-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px; letter-spacing: 1.5px;
+    color: var(--accent); min-width: 36px;
+  }
+  .match-teams-col { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .match-team-row { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
+  .match-team-row.winner { color: var(--green); font-weight: 700; }
+  .match-team-row.loser  { color: var(--muted); }
+  .match-team-row.pending-team { color: var(--muted); font-style: italic; }
+  .vs-divider { font-size: 10px; color: var(--muted); padding-left: 4px; }
+  .match-status {
+    font-size: 11px; font-weight: 700; letter-spacing: .8px;
+    text-transform: uppercase; padding: 4px 10px;
+    border-radius: 20px; white-space: nowrap;
+  }
+  .s-pending { background: rgba(255,255,255,.06); color: var(--muted); }
+  .s-live    { background: rgba(255,71,87,.15);   color: var(--red); animation: blink 1.2s infinite; }
+  .s-done    { background: rgba(0,232,122,.12);   color: var(--green); }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+  .match-result {
+    display: flex; justify-content: center; gap: 6px;
+    padding: 4px 16px 10px;
+    font-size: 13px; color: var(--muted);
+  }
+  .set-chip {
+    background: rgba(255,255,255,.06);
+    border-radius: 6px; padding: 2px 8px;
+    font-size: 12px; font-weight: 600; color: var(--text);
+  }
+
+  .start-btn {
+    width: 100%; padding: 13px;
+    background: linear-gradient(135deg, rgba(0,212,255,.15), rgba(124,92,252,.15));
+    border: none; border-top: 1px solid var(--border);
+    color: var(--accent); font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 700; letter-spacing: .5px;
+    cursor: pointer; transition: background .2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .start-btn:hover { background: linear-gradient(135deg, rgba(0,212,255,.25), rgba(124,92,252,.25)); }
+  .start-btn:disabled { opacity: .3; cursor: not-allowed; }
+  .start-btn.locked-by-other { color: var(--red); background: rgba(255,71,87,.06); cursor: not-allowed; }
+
+  /* ─── SCORING ─── */
+  #screen-scoring { background: var(--bg); }
+
+  .score-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 18px 20px 0;
+  }
+  .back-btn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 14px;
+    color: var(--muted); font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: all .2s;
+  }
+  .back-btn:hover { border-color: rgba(255,255,255,.2); color: var(--text); }
+  .score-match-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px; letter-spacing: 2px; color: var(--accent);
+  }
+
+  .scoreboard {
+    margin: 16px 20px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+  }
+  .sb-team-row {
+    display: grid;
+    grid-template-columns: 1fr 56px 56px;
+    align-items: center;
+    padding: 14px 18px;
+    gap: 10px;
+    transition: background .2s;
+  }
+  .sb-team-row:first-child { border-bottom: 1px solid var(--border); }
+  .sb-team-row.serving { background: rgba(0,212,255,.04); }
+  .sb-team-row.winning-row { background: rgba(0,232,122,.04); }
+  .sb-name {
+    font-size: 15px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+    min-width: 0;
+  }
+  .sb-name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .serve-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent); flex-shrink: 0;
+    box-shadow: 0 0 6px var(--accent);
+  }
+  .sb-pts {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px; color: var(--accent);
+    text-align: center; line-height: 1;
+  }
+  .sb-games {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px; color: var(--text);
+    text-align: center; line-height: 1;
+  }
+  .sb-col-headers {
+    display: grid;
+    grid-template-columns: 1fr 56px 56px;
+    padding: 8px 18px 6px; gap: 10px;
+  }
+  .sb-col-hdr {
+    font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted); text-align: center;
+  }
+  .sb-col-hdr:first-child { text-align: left; }
+
+  .game-info {
+    margin: 12px 20px 0;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px;
+  }
+  .game-status {
+    font-size: 13px; color: var(--muted);
+  }
+  .hl { color: var(--accent); font-weight: 700; }
+  .tb-badge {
+    background: rgba(255,193,7,.15); color: var(--gold);
+    font-size: 11px; font-weight: 700; letter-spacing: .8px;
+    padding: 3px 10px; border-radius: 20px;
+    border: 1px solid rgba(255,193,7,.25);
+  }
+  .sets-display {
+    font-size: 12px; color: var(--muted);
+    display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+  }
+  .set-chip-live {
+    background: rgba(255,255,255,.07);
+    border-radius: 6px; padding: 2px 8px;
+    font-size: 12px; font-weight: 600; color: var(--text);
+  }
+
+  /* Point buttons */
+  .point-btns {
+    margin: 18px 20px 0;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .pt-btn {
+    padding: 22px 12px;
+    border-radius: 14px; border: 2px solid transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px; font-weight: 700; letter-spacing: .3px;
+    cursor: pointer; transition: all .15s;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  }
+  .pt-btn-name {
+    font-size: 13px; font-weight: 600;
+    white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis; width: 100%; text-align: center;
+  }
+  .pt-btn-label { font-size: 11px; font-weight: 400; opacity: .7; }
+  .pt-btn:nth-child(1) {
+    background: rgba(0,212,255,.12);
+    border-color: rgba(0,212,255,.25); color: var(--accent);
+  }
+  .pt-btn:nth-child(1):active { background: rgba(0,212,255,.25); transform: scale(.97); }
+  .pt-btn:nth-child(2) {
+    background: rgba(124,92,252,.12);
+    border-color: rgba(124,92,252,.25); color: #b8a4ff;
+  }
+  .pt-btn:nth-child(2):active { background: rgba(124,92,252,.25); transform: scale(.97); }
+
+  /* Controls */
+  .controls {
+    margin: 14px 20px 0;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .ctrl-btn {
+    padding: 12px; border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface); color: var(--muted);
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all .2s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .ctrl-btn:hover { border-color: rgba(255,255,255,.2); color: var(--text); }
+  .ctrl-btn:disabled { opacity: .3; cursor: not-allowed; }
+  .ctrl-btn.danger { border-color: rgba(255,71,87,.3); color: var(--red); }
+  .ctrl-btn.danger:hover { background: rgba(255,71,87,.08); }
+
+  /* Match over overlay */
+  .match-over {
+    display: none; position: fixed; inset: 0;
+    background: rgba(8,11,16,.93);
+    z-index: 100;
+    align-items: center; justify-content: center;
+    flex-direction: column;
+    padding: 24px;
+  }
+  .match-over.show { display: flex; }
+  .over-card {
+    width: 100%; max-width: 380px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 32px 28px;
+    display: flex; flex-direction: column; align-items: center; gap: 18px;
+    text-align: center;
+  }
+  .over-trophy { font-size: 52px; }
+  .over-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px; letter-spacing: 3px; color: var(--gold);
+  }
+  .over-winner { font-size: 20px; font-weight: 700; color: var(--text); }
+  .over-score { font-size: 14px; color: var(--muted); }
+  .save-btn {
+    width: 100%; padding: 16px;
+    background: linear-gradient(135deg, var(--green), #00c060);
+    border: none; border-radius: 12px;
+    color: #000; font-family: 'DM Sans', sans-serif;
+    font-size: 16px; font-weight: 800; cursor: pointer;
+    transition: opacity .2s;
+  }
+  .save-btn:hover { opacity: .9; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 22px;
+    font-size: 14px; font-weight: 600; color: var(--text);
+    opacity: 0; transition: all .35s; white-space: nowrap; z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--green); color: var(--green); }
+  .toast.error   { border-color: var(--red);   color: var(--red);   }
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div class="screen active" id="screen-login">
+  <div class="login-wrap">
+    <div>
+      <div class="login-logo">RPT 2026</div>
+      <div class="login-sub">Referee Portal · Knockouts</div>
+    </div>
+    <div class="login-card">
+      <div class="login-label">Password</div>
+      <input type="password" id="pwd" class="login-input" placeholder="Enter password"
+             onkeydown="if(event.key==='Enter') doLogin()"/>
+      <button class="btn-enter" onclick="doLogin()">Enter →</button>
+      <div class="login-error" id="login-error">Incorrect password. Try again.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PICKER ══ -->
+<div class="screen" id="screen-picker">
+  <div class="picker-header">
+    <div class="picker-title">Matches</div>
+    <button class="logout-btn" onclick="doLogout()">Logout</button>
+  </div>
+  <div class="picker-body" id="match-list">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
+<!-- ══ SCORING ══ -->
+<div class="screen" id="screen-scoring">
+  <div class="score-header">
+    <button class="back-btn" onclick="goBack()">← Back</button>
+    <div class="score-match-label" id="scoring-label">QF1</div>
+    <button class="ctrl-btn danger" onclick="endEarly()" style="padding:8px 14px;font-size:12px;border-radius:10px;margin-left:auto;">⚑ End</button>
+  </div>
+
+  <div class="scoreboard">
+    <div class="sb-col-headers">
+      <div class="sb-col-hdr">Team</div>
+      <div class="sb-col-hdr">Points</div>
+      <div class="sb-col-hdr">Games</div>
+    </div>
+    <div class="sb-team-row" id="row0">
+      <div class="sb-name"><div class="serve-dot" id="dot0"></div><span id="name0">Team 1</span></div>
+      <div class="sb-pts" id="pts0">0</div>
+      <div class="sb-games" id="games0">0</div>
+    </div>
+    <div class="sb-team-row" id="row1">
+      <div class="sb-name"><div class="serve-dot" id="dot1" style="visibility:hidden"></div><span id="name1">Team 2</span></div>
+      <div class="sb-pts" id="pts1">0</div>
+      <div class="sb-games" id="games1">0</div>
+    </div>
+  </div>
+
+  <div class="game-info">
+    <div class="game-status" id="game-status">—</div>
+    <div class="sets-display" id="sets-display"></div>
+  </div>
+
+  <div class="point-btns">
+    <button class="pt-btn" onclick="addPoint(0)" id="ptbtn0">
+      <div class="pt-btn-name" id="btn-name0">Team 1</div>
+      <div class="pt-btn-label">Point</div>
+    </button>
+    <button class="pt-btn" onclick="addPoint(1)" id="ptbtn1">
+      <div class="pt-btn-name" id="btn-name1">Team 2</div>
+      <div class="pt-btn-label">Point</div>
+    </button>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn" id="btn-undo" onclick="undoPoint()" disabled>↩ Undo</button>
+    <div></div>
+  </div>
+</div>
+
+<!-- Match Over -->
+<div class="match-over" id="match-over">
+  <div class="over-card">
+    <div class="over-trophy">🏆</div>
+    <div class="over-title">Match Over</div>
+    <div class="over-winner" id="over-winner">—</div>
+    <div class="over-score" id="over-score">wins the match</div>
+    <button class="save-btn" onclick="confirmSave()">Save & Publish Result</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const app = initializeApp({
+  apiKey:            "AIzaSyAL47Z_U9-TvJdipiY_shCIUobxg_liBRc",
+  authDomain:        "rpt-2026.firebaseapp.com",
+  databaseURL:       "https://rpt-2026-default-rtdb.firebaseio.com",
+  projectId:         "rpt-2026",
+  storageBucket:     "rpt-2026.firebasestorage.app",
+  messagingSenderId: "328293794470",
+  appId:             "1:328293794470:web:9cf522d7067921b5512a67"
+});
+const db = getDatabase(app);
+
+// ── MATCHES ──
+const MATCHES = [
+  { id:'QF1', round:'Quarter-Finals', court:1, time:'20:00',       t1:'3antar w Chaddad',    t2:'Awlad el 7ag Claude' },
+  { id:'QF2', round:'Quarter-Finals', court:2, time:'20:00',       t1:'Finaira Blaugrana',   t2:'الشناوي للبدل و التنس الطاولة' },
+  { id:'QF3', round:'Quarter-Finals', court:1, time:'After QF1/2', t1:'F&K',                 t2:'اوس ملح و داب' },
+  { id:'QF4', round:'Quarter-Finals', court:2, time:'After QF1/2', t1:'Sabek wa Lahek',      t2:'LOL' },
+  { id:'SF1', round:'Semi-Finals',    court:1, time:'After QFs',   t1:'W QF1',               t2:'W QF2' },
+  { id:'SF2', round:'Semi-Finals',    court:2, time:'After QFs',   t1:'W QF3',               t2:'W QF4' },
+  { id:'3RD', round:'3rd Place',      court:1, time:'After SFs',   t1:'Loser SF1',           t2:'Loser SF2' },
+  { id:'FIN', round:'Final',          court:2, time:'After 3rd',   t1:'W SF1',               t2:'W SF2' },
+];
+
+// ── STATE ──
+const SESSION = Math.random().toString(36).slice(2);
+let fbData = {};    // live firebase snapshot
+let S = null;       // scoring state
+let H = [];         // undo history
+let activeMatch = null;
+let fbRef = null;
+
+// ── RESOLVE SLOT ──
+function resolve(slot) {
+  const wm = { 'W QF1':'QF1','W QF2':'QF2','W QF3':'QF3','W QF4':'QF4','W SF1':'SF1','W SF2':'SF2' };
+  const lm = { 'Loser SF1':'SF1','Loser SF2':'SF2' };
+  if (wm[slot]) {
+    const d = fbData[wm[slot]];
+    if (d && d.status === 'done') return d.games_t1 > d.games_t2 ? d.team1 : d.team2;
+  }
+  if (lm[slot]) {
+    const d = fbData[lm[slot]];
+    if (d && d.status === 'done') return d.games_t1 > d.games_t2 ? d.team2 : d.team1;
+  }
+  return slot;
+}
+
+// ── RENDER PICKER ──
+function renderPicker() {
+  const rounds = [...new Set(MATCHES.map(m => m.round))];
+  let html = '';
+  rounds.forEach(round => {
+    html += `<div class="round-label">${round}</div>`;
+    MATCHES.filter(m => m.round === round).forEach(m => {
+      const d = fbData[m.id] || {};
+      const st = d.status || 'pending';
+      const lockedByOther = st === 'live' && d.lockedBy && d.lockedBy !== SESSION;
+      const lockedByMe    = st === 'live' && d.lockedBy && d.lockedBy === SESSION;
+
+      const t1 = d.team1 || resolve(m.t1);
+      const t2 = d.team2 || resolve(m.t2);
+      const t1Pending = t1.startsWith('W ') || t1.startsWith('Loser');
+      const t2Pending = t2.startsWith('W ') || t2.startsWith('Loser');
+      const ready = !t1Pending && !t2Pending;
+
+      const statusHtml =
+        lockedByOther ? `<span class="match-status s-live">🔒 Live</span>` :
+        st === 'live' ? `<span class="match-status s-live">● ${lockedByMe ? 'You · ' : ''}Live</span>` :
+        st === 'done' ? `<span class="match-status s-done">✓ Done</span>` :
+                        `<span class="match-status s-pending">Pending</span>`;
+
+      const t1Class = st==='done' ? (d.games_t1 > d.games_t2 ? 'winner' : 'loser') : (t1Pending ? 'pending-team' : '');
+      const t2Class = st==='done' ? (d.games_t2 > d.games_t1 ? 'winner' : 'loser') : (t2Pending ? 'pending-team' : '');
+
+      const resultHtml = st === 'done' && d.setScores
+        ? `<div class="match-result">${d.setScores.map(([a,b]) => `<span class="set-chip">${a}–${b}</span>`).join('')}</div>`
+        : '';
+
+      const btnHtml = st !== 'done' && !lockedByOther
+        ? `<button class="start-btn" ${!ready ? 'disabled' : ''} onclick="window.startMatch('${m.id}')">
+             ${!ready ? '⏳ Waiting for previous result' : '🎾 Start Match'}
+           </button>`
+        : lockedByOther
+        ? `<button class="start-btn locked-by-other" disabled>🔒 In progress by another referee</button>`
+        : '';
+
+      html += `
+        <div class="match-card ${st==='done'?'done':''} ${st==='live'?'live':''}">
+          <div class="match-top">
+            <div class="match-id-badge">${m.id}</div>
+            <div class="match-teams-col">
+              <div class="match-team-row ${t1Class}"><span>${t1}</span></div>
+              <div class="vs-divider">vs</div>
+              <div class="match-team-row ${t2Class}"><span>${t2}</span></div>
+            </div>
+            ${statusHtml}
+          </div>
+          ${resultHtml}
+          ${btnHtml}
+        </div>`;
+    });
+  });
+  document.getElementById('match-list').innerHTML = html;
+}
+
+// ── START MATCH ──
+window.startMatch = function(id) {
+  const m = MATCHES.find(x => x.id === id);
+  if (!m) return;
+  const d = fbData[id] || {};
+  if (d.status === 'live' && d.lockedBy && d.lockedBy !== SESSION) {
+    alert('This match is already being scored by another referee.');
+    return;
+  }
+  const t1 = d.team1 || resolve(m.t1);
+  const t2 = d.team2 || resolve(m.t2);
+  if (t1.startsWith('W ') || t1.startsWith('Loser') || t2.startsWith('W ') || t2.startsWith('Loser')) {
+    alert('Previous match not completed yet.');
+    return;
+  }
+  launchScoring(m, t1, t2);
+};
+
+function launchScoring(m, t1, t2) {
+  activeMatch = m;
+  fbRef = ref(db, 'matches/' + m.id);
+  S = {
+    matchId: m.id,
+    team1: t1, team2: t2,
+    sets: [0, 0], games: [0, 0], points: [0, 0],
+    inTB: false, serving: 0, over: false, winner: null, setScores: []
+  };
+  H = [];
+  document.getElementById('btn-undo').disabled = true;
+  document.getElementById('scoring-label').textContent = m.id + ' · ' + m.round;
+  update(fbRef, { status:'live', team1:t1, team2:t2, lockedBy:SESSION });
+  updateDisplay();
+  showScreen('scoring');
+}
+
+// ── SCORING ENGINE ──
+function ptsLabel(n, inTB) {
+  if (inTB) return n;
+  return ['0','15','30','40'][Math.min(n, 3)] ?? n;
+}
+function isDeuce(s) { return !s.inTB && s.points[0] >= 3 && s.points[1] >= 3 && s.points[0] === s.points[1]; }
+function isAdv(s)   { return !s.inTB && s.points[0] >= 3 && s.points[1] >= 3 && Math.abs(s.points[0] - s.points[1]) === 1; }
+
+window.addPoint = function(i) {
+  if (!S || S.over) return;
+  H.push(JSON.parse(JSON.stringify(S)));
+  document.getElementById('btn-undo').disabled = false;
+  const j = 1 - i;
+
+  if (S.inTB) {
+    S.points[i]++;
+    if (S.points[i] >= 7 && S.points[i] - S.points[j] >= 2) winGame(i);
+  } else {
+    S.points[i]++;
+    const p = S.points;
+    const won = isDeuce(S) ? false : isAdv(S) ? (p[i] > p[j]) : (p[i] >= 4 && p[i] - p[j] >= 2);
+    if (won) winGame(i);
+  }
+  updateDisplay();
+};
+
+function winGame(i) {
+  S.games[i]++;
+  S.points = [0, 0];
+  S.inTB = false;
+  S.serving = 1 - S.serving;
+  const target = 6, tbAt = 6;
+  if (S.games[i] >= target && S.games[i] - S.games[1-i] >= 2) {
+    winSet(i);
+  } else if (S.games[i] === tbAt && S.games[1-i] === tbAt) {
+    S.inTB = true;
+  }
+}
+
+function winSet(i) {
+  S.setScores.push([S.games[0], S.games[1]]);
+  S.sets[i]++;
+  S.games = [0, 0]; S.points = [0, 0]; S.inTB = false;
+  if (S.sets[i] >= 1) { S.over = true; S.winner = i; showMatchOver(); }
+}
+
+function showMatchOver() {
+  const wname = S.winner === 0 ? S.team1 : S.team2;
+  document.getElementById('over-winner').textContent = wname;
+  const scoreStr = S.setScores.map(([a,b]) => a+'-'+b).join(', ');
+  document.getElementById('over-score').textContent = 'wins — ' + scoreStr;
+  document.getElementById('match-over').classList.add('show');
+}
+
+window.confirmSave = async function() {
+  if (!S || S.winner === null) return;
+  const gw1 = S.sets[0], gw2 = S.sets[1];
+  await set(fbRef, {
+    status: 'done', matchId: S.matchId,
+    team1: S.team1, team2: S.team2,
+    games_t1: gw1, games_t2: gw2,
+    setScores: S.setScores,
+    completedAt: Date.now(), lockedBy: null
+  });
+  document.getElementById('match-over').classList.remove('show');
+  toast('✓ Result saved!', 'success');
+  setTimeout(() => goBack(), 1200);
+};
+
+window.undoPoint = function() {
+  if (!H.length) return;
+  S = H.pop();
+  document.getElementById('btn-undo').disabled = H.length === 0;
+  document.getElementById('match-over').classList.remove('show');
+  updateDisplay();
+};
+
+window.endEarly = function() {
+  if (!S) return;
+  const lead = S.games[0] > S.games[1] ? 0 : S.games[1] > S.games[0] ? 1 : -1;
+  if (lead === -1) { alert('Scores are tied — cannot declare a winner.'); return; }
+  if (!confirm(`End match now? ${lead === 0 ? S.team1 : S.team2} leads and will be declared winner.`)) return;
+  S.winner = lead; S.over = true;
+  showMatchOver();
+};
+
+// ── UPDATE DISPLAY ──
+function updateDisplay() {
+  if (!S) return;
+  document.getElementById('name0').textContent = S.team1;
+  document.getElementById('name1').textContent = S.team2;
+  document.getElementById('btn-name0').textContent = S.team1;
+  document.getElementById('btn-name1').textContent = S.team2;
+
+  document.getElementById('pts0').textContent  = ptsLabel(S.points[0], S.inTB);
+  document.getElementById('pts1').textContent  = ptsLabel(S.points[1], S.inTB);
+  document.getElementById('games0').textContent = S.games[0];
+  document.getElementById('games1').textContent = S.games[1];
+
+  document.getElementById('dot0').style.visibility = S.serving === 0 ? 'visible' : 'hidden';
+  document.getElementById('dot1').style.visibility = S.serving === 1 ? 'visible' : 'hidden';
+
+  const row0 = document.getElementById('row0');
+  const row1 = document.getElementById('row1');
+  row0.className = 'sb-team-row' + (S.serving===0?' serving':'') + (S.games[0]>S.games[1]?' winning-row':'');
+  row1.className = 'sb-team-row' + (S.serving===1?' serving':'') + (S.games[1]>S.games[0]?' winning-row':'');
+
+  const statusEl = document.getElementById('game-status');
+  if (S.inTB) {
+    statusEl.innerHTML = `<span class="tb-badge">🎯 Tiebreak</span> First to 7, lead by 2`;
+  } else if (isDeuce(S)) {
+    statusEl.innerHTML = `<span class="hl">Deuce</span>`;
+  } else if (isAdv(S)) {
+    const d = S.points[0] - S.points[1];
+    statusEl.innerHTML = `Advantage <span class="hl">${d > 0 ? S.team1 : S.team2}</span>`;
+  } else {
+    statusEl.innerHTML = `Set ${S.setScores.length + 1} &nbsp;·&nbsp; Normal Set`;
+  }
+
+  const setsEl = document.getElementById('sets-display');
+  if (S.setScores.length > 0) {
+    setsEl.innerHTML = 'Sets: ' + S.setScores.map(([a,b]) => `<span class="set-chip-live">${a}–${b}</span>`).join('');
+  } else {
+    setsEl.innerHTML = '';
+  }
+}
+
+// ── GO BACK ──
+window.goBack = function() {
+  if (fbRef && activeMatch) {
+    const d = fbData[activeMatch.id] || {};
+    if (d.lockedBy === SESSION && d.status !== 'done') {
+      update(fbRef, { status:'pending', lockedBy:null });
+    }
+  }
+  S = null; H = []; activeMatch = null; fbRef = null;
+  showScreen('picker');
+};
+
+// ── SCREEN SWITCH ──
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
+  const el = document.getElementById('screen-' + name);
+  if (el) {
+    el.classList.add('active');
+    el.style.display = name === 'login' ? 'flex' : 'flex';
+    el.style.flexDirection = 'column';
+  }
+}
+
+// ── AUTH ──
+const PWD = 'rpt2026ref';
+window.doLogin = function() {
+  const val = document.getElementById('pwd').value;
+  if (val === PWD) {
+    document.getElementById('login-error').style.display = 'none';
+    sessionStorage.setItem('ref-auth', '1');
+    showScreen('picker');
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+};
+window.doLogout = function() {
+  sessionStorage.removeItem('ref-auth');
+  showScreen('login');
+  document.getElementById('pwd').value = '';
+};
+
+// ── FIREBASE LISTENER ──
+onValue(ref(db, 'matches'), snap => {
+  fbData = snap.val() || {};
+  renderPicker();
+});
+
+// ── TOAST ──
+function toast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── INIT ──
+if (sessionStorage.getItem('ref-auth') === '1') {
+  showScreen('picker');
+} else {
+  showScreen('login');
+}
+</script>
+</body>
+</html>
