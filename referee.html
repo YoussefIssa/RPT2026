@@ -569,6 +569,16 @@ function updateDisplay() {
 
 /* ── PICKER RENDER ── */
 let pickerUnsubscribe = null;
+
+// Resolve W QFx / Loser SFx from completed matches
+function resolveSlot(md, slot) {
+  const wm={'W QF1':'QF1','W QF2':'QF2','W QF3':'QF3','W QF4':'QF4','W SF1':'SF1','W SF2':'SF2'};
+  const lm={'Loser SF1':'SF1','Loser SF2':'SF2'};
+  if(wm[slot]){const p=md[wm[slot]];if(p?.status==='done')return p.games_t1>p.games_t2?p.team1:p.team2;}
+  if(lm[slot]){const p=md[lm[slot]];if(p?.status==='done')return p.games_t1>p.games_t2?p.team2:p.team1;}
+  return slot;
+}
+
 function renderPicker(md) {
   md=md||{};
   cachedMatchData = md;
@@ -591,16 +601,8 @@ function renderPicker(md) {
 
       const cardClass = isLockedByOther ? 'locked' : st;
 
-      // Resolve W QFx / Loser SFx from completed matches
-      function resolveSlot(slot) {
-        const wm={'W QF1':'QF1','W QF2':'QF2','W QF3':'QF3','W QF4':'QF4','W SF1':'SF1','W SF2':'SF2'};
-        const lm={'Loser SF1':'SF1','Loser SF2':'SF2'};
-        if(wm[slot]){const p=md[wm[slot]];if(p?.status==='done')return p.games_t1>p.games_t2?p.team1:p.team2;}
-        if(lm[slot]){const p=md[lm[slot]];if(p?.status==='done')return p.games_t1>p.games_t2?p.team2:p.team1;}
-        return slot;
-      }
-      const rt1 = d.team1 || resolveSlot(m.team1);
-      const rt2 = d.team2 || resolveSlot(m.team2);
+      const rt1 = d.team1 || resolveSlot(md, m.team1);
+      const rt2 = d.team2 || resolveSlot(md, m.team2);
       const readyToStart = !rt1.startsWith('W ') && !rt1.startsWith('Loser') && !rt2.startsWith('W ') && !rt2.startsWith('Loser');
 
       const koInputs = isKO && !isLockedByOther && st!=='done' ? `
@@ -617,22 +619,8 @@ window.startKO = function(id) {
   }
 
   // Auto-resolve winner/loser placeholders from previous rounds
-  function resolveTeam(slot) {
-    const winnerMap = {'W QF1':'QF1','W QF2':'QF2','W QF3':'QF3','W QF4':'QF4','W SF1':'SF1','W SF2':'SF2'};
-    const loserMap  = {'Loser SF1':'SF1','Loser SF2':'SF2'};
-    if (winnerMap[slot]) {
-      const prev = cachedMatchData[winnerMap[slot]];
-      if (prev?.status==='done') return prev.games_t1 > prev.games_t2 ? prev.team1 : prev.team2;
-    }
-    if (loserMap[slot]) {
-      const prev = cachedMatchData[loserMap[slot]];
-      if (prev?.status==='done') return prev.games_t1 > prev.games_t2 ? prev.team2 : prev.team1;
-    }
-    return slot;
-  }
-
-  const t1 = resolveTeam(m.team1);
-  const t2 = resolveTeam(m.team2);
+  const t1 = resolveSlot(cachedMatchData, m.team1);
+  const t2 = resolveSlot(cachedMatchData, m.team2);
   launchScoring(m,t1,t2);
 };
 
