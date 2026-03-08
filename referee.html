@@ -31,7 +31,7 @@ body::before{
 /* ── SCREENS ── */
 .screen{display:none;position:relative;z-index:1;min-height:100vh;padding:24px 20px 60px;}
 .screen.active{display:block;}
-#screen-login{display:none;align-items:center;justify-content:center;}
+#screen-login{align-items:center;justify-content:center;}
 #screen-login.active{display:flex;}
 
 /* ── LOGIN ── */
@@ -366,135 +366,93 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
-/* ── MATCHES ── */
-const SUNDAY = [
-  {id:'A1',group:'A',court:1,time:'20:00',team1:'LOL',                          team2:'Power Girls'},
-  {id:'B1',group:'B',court:2,time:'20:00',team1:'Sabek wa Lahek',                team2:'Finaira Blaugrana'},
-  {id:'C1',group:'C',court:1,time:'20:15',team1:'Awlad el 7ag Claude',           team2:'بادل فاقد'},
-  {id:'A2',group:'A',court:2,time:'20:15',team1:'LOL',                           team2:'اوس ملح و داب'},
-  {id:'B2',group:'B',court:1,time:'20:30',team1:'Sabek wa Lahek',                team2:'Hertz'},
-  {id:'C2',group:'C',court:2,time:'20:30',team1:'Awlad el 7ag Claude',           team2:'الشناوي للبدل و التنس الطاولة'},
-  {id:'A3',group:'A',court:1,time:'20:45',team1:'LOL',                           team2:'3antar w Chaddad'},
-  {id:'B3',group:'B',court:2,time:'20:45',team1:'Sabek wa Lahek',                team2:'خليها على الله'},
-  {id:'C3',group:'C',court:1,time:'21:00',team1:'Awlad el 7ag Claude',           team2:'F&K'},
-  {id:'A4',group:'A',court:2,time:'21:00',team1:'Power Girls',                   team2:'اوس ملح و داب'},
-  {id:'B4',group:'B',court:1,time:'21:15',team1:'Finaira Blaugrana',             team2:'Hertz'},
-  {id:'C4',group:'C',court:2,time:'21:15',team1:'بادل فاقد',                     team2:'الشناوي للبدل و التنس الطاولة'},
-  {id:'A5',group:'A',court:1,time:'21:30',team1:'Power Girls',                   team2:'3antar w Chaddad'},
-  {id:'B5',group:'B',court:2,time:'21:30',team1:'Finaira Blaugrana',             team2:'خليها على الله'},
-  {id:'C5',group:'C',court:1,time:'21:45',team1:'بادل فاقد',                     team2:'F&K'},
-  {id:'A6',group:'A',court:2,time:'21:45',team1:'اوس ملح و داب',                 team2:'3antar w Chaddad'},
-  {id:'B6',group:'B',court:1,time:'22:00',team1:'Hertz',                         team2:'خليها على الله'},
-  {id:'C6',group:'C',court:2,time:'22:00',team1:'الشناوي للبدل و التنس الطاولة', team2:'F&K'},
-];
+// ── MATCH LISTS ──
+const SUNDAY = [];  // kept empty — group stage complete
+
 const MONDAY = [
-  {id:'QF1',group:'KO',court:1,time:'20:00',        team1:'3antar w Chaddad', team2:'Awlad el 7ag Claude'},
-  {id:'QF2',group:'KO',court:2,time:'20:00',        team1:'Finaira Blaugrana',team2:'الشناوي للبدل و التنس الطاولة'},
-  {id:'QF3',group:'KO',court:1,time:'~After QF1/2', team1:'F&K',              team2:'اوس ملح و داب'},
-  {id:'QF4',group:'KO',court:2,time:'~After QF1/2', team1:'Sabek wa Lahek',   team2:'LOL'},
-  {id:'SF1',group:'KO',court:1,time:'~After QFs',   team1:'W QF1',            team2:'W QF2'},
-  {id:'SF2',group:'KO',court:2,time:'~After QFs',   team1:'W QF3',            team2:'W QF4'},
-  {id:'3RD',group:'KO',court:1,time:'~After SFs',   team1:'Loser SF1',        team2:'Loser SF2'},
-  {id:'FIN',group:'KO',court:2,time:'~After SFs',   team1:'W SF1',            team2:'W SF2'},
+  {id:'QF1',group:'KO',court:1,time:'20:00',        team1:'3antar w Chaddad',              team2:'Awlad el 7ag Claude'},
+  {id:'QF2',group:'KO',court:2,time:'20:00',        team1:'Finaira Blaugrana',             team2:'الشناوي للبدل و التنس الطاولة'},
+  {id:'QF3',group:'KO',court:1,time:'~After QF1/2', team1:'F&K',                           team2:'اوس ملح و داب'},
+  {id:'QF4',group:'KO',court:2,time:'~After QF1/2', team1:'Sabek wa Lahek',                team2:'LOL'},
+  {id:'SF1',group:'KO',court:1,time:'~After QFs',   team1:'W QF1',                         team2:'W QF2'},
+  {id:'SF2',group:'KO',court:2,time:'~After QFs',   team1:'W QF3',                         team2:'W QF4'},
+  {id:'3RD',group:'KO',court:1,time:'~After SFs',   team1:'Loser SF1',                     team2:'Loser SF2'},
+  {id:'FIN',group:'KO',court:2,time:'~After SFs',   team1:'W SF1',                         team2:'W SF2'},
 ];
 const ALL = [...SUNDAY,...MONDAY];
+
 const GRP_CLS = {A:'grp-a',B:'grp-b',C:'grp-c',KO:'grp-ko'};
-const GRP_LBL = {A:'Group A',B:'Group B',C:'Group C',KO:'Knockout'};
 
-/* ── SCORING ENGINE ── */
-const PT = ['0','15','30','40'];
-let S = null, H = [], activeM = null, fbRef = null;
+// ── SCORING STATE ──
+let S=null, H=[], activeM=null, fbRef=null;
 
-function fresh(m, t1override, t2override) {
+function fresh(m,t1,t2) {
   return {
     matchId:m.id, isKO:m.group==='KO',
-    team1: t1override||m.team1,
-    team2: t2override||m.team2,
+    team1:t1, team2:t2,
     sets:[0,0], games:[0,0], points:[0,0],
     inTB:false, serving:0,
     over:false, winner:null, setScores:[]
   };
 }
 
-const ptLabel = (p,tb) => tb ? String(p) : PT[Math.min(p,3)];
-const isDeuce = s => !s.inTB && s.points[0]>=3 && s.points[1]>=3;
-const gameTarget = s => s.isKO ? 6 : 4;
-
-function setWon(s,i) {
-  const o=1-i;
-  if(s.inTB) return s.games[i]>=7 && s.games[i]-s.games[o]>=2;
-  if(s.isKO){
-    if(s.games[i]>=6 && s.games[i]-s.games[o]>=2) return true;
-    if(s.games[i]===7 && s.games[o]===5) return true;
-    return false;
-  }
-  return s.games[i]>=4;
+// ── SCORING LOGIC ──
+function isDeuce(S) {
+  return !S.inTB && S.points[0]>=3 && S.points[1]>=3 && S.points[0]===S.points[1];
 }
-
-function needsTB(s) {
-  return s.isKO ? s.games[0]===6&&s.games[1]===6
-                : s.games[0]===3&&s.games[1]===3;
-}
-
-function endGame(i) {
-  S.games[i]++;
-  S.points=[0,0];
-  S.serving=1-S.serving;
-  if(needsTB(S)){ S.inTB=true; S.games=[0,0]; }
-  else if(setWon(S,i)) endSet(i);
-}
-
-function endSet(i) {
-  S.setScores.push({g1:S.games[0],g2:S.games[1]});
-  S.sets[i]++;
-  S.games=[0,0]; S.points=[0,0]; S.inTB=false;
-  if(S.sets[i]>=1){ S.over=true; S.winner=i; triggerMatchOver(); }
+function isAdv(S) {
+  return !S.inTB && S.points[0]>=3 && S.points[1]>=3 && Math.abs(S.points[0]-S.points[1])===1;
 }
 
 window.addPoint = function(i) {
   if(!S||S.over) return;
   H.push(JSON.parse(JSON.stringify(S)));
   document.getElementById('btn-undo').disabled=false;
-  const o=1-i;
-  if(S.inTB){
-    S.games[i]++;
-    if(setWon(S,i)) endSet(i);
+  const j=1-i;
+
+  if(S.inTB) {
+    S.points[i]++;
+    if(S.points[i]>=7 && S.points[i]-S.points[j]>=2) winGame(i);
   } else {
     S.points[i]++;
-    if(isDeuce(S)){
-      if(S.points[i]-S.points[o]>=2) endGame(i);
-    } else if(S.points[i]>=4&&S.points[o]<3) endGame(i);
-    else if(S.points[i]===4&&S.points[o]===3) { /* needs deuce */ }
+    const p=S.points;
+    const gameWon = (p[i]>=4 && p[i]-p[j]>=2) || (p[i]===4 && p[j]<=2);
+    if(gameWon) winGame(i);
   }
-  updateDisplay(); pushLive();
+  updateDisplay();
 };
 
-window.undoPoint = function() {
-  if(!H.length) return;
-  S=H.pop();
-  document.getElementById('btn-undo').disabled=!H.length;
-  updateDisplay(); pushLive();
-};
+function winGame(i) {
+  const j=1-i;
+  S.games[i]++;
+  S.points=[0,0];
+  S.inTB=false;
+  S.serving=1-S.serving;
+  const target=S.isKO?6:4;
+  const tbAt=S.isKO?6:3;
+  if(S.games[i]>=target && S.games[i]-S.games[j]>=2) {
+    winSet(i);
+  } else if(S.games[i]===tbAt && S.games[j]===tbAt) {
+    S.inTB=true;
+  }
+}
 
-window.manualEnd = function() {
-  if(!S) return;
-  const i = S.games[0]>=S.games[1] ? 0 : 1;
-  S.winner=i; triggerMatchOver();
-};
+function winSet(i) {
+  S.setScores.push([S.games[0],S.games[1]]);
+  S.sets[i]++;
+  S.games=[0,0]; S.points=[0,0]; S.inTB=false;
+  if(S.sets[i]>=1){ S.over=true; S.winner=i; triggerMatchOver(); }
+}
 
 function triggerMatchOver() {
   const wname = S.winner===0 ? S.team1 : S.team2;
   document.getElementById('over-winner').textContent = wname;
-  const sc = S.setScores.map(s=>`${s.g1}–${s.g2}`).join('  ');
-  document.getElementById('over-score').textContent = sc || `${S.games[0]}–${S.games[1]} games`;
   document.getElementById('match-over').classList.add('show');
 }
 
-window.saveAndFinish = async function() {
+window.confirmSave = async function() {
   if(!S||S.winner===null) return;
-  let gw1=0,gw2=0;
-  S.setScores.forEach(s=>{ if(s.g1>s.g2) gw1++; else gw2++; });
-  // Ensure winner has at least 1 game win recorded
+  let gw1=S.sets[0], gw2=S.sets[1];
   if(S.winner===0) gw1=Math.max(gw1,1);
   else gw2=Math.max(gw2,1);
   await set(fbRef,{
@@ -508,194 +466,207 @@ window.saveAndFinish = async function() {
   setTimeout(()=>goBack(),1400);
 };
 
-function pushLive() {
-  if(!fbRef||!S) return;
-  update(fbRef,{
-    status: S.over?'done':'live',
-    team1:S.team1, team2:S.team2,
-    live_p1:S.points[0], live_p2:S.points[1],
-    live_g1:S.games[0],  live_g2:S.games[1],
-  });
+window.endEarly = function() {
+  if(!S) return;
+  const lead = S.games[0]>S.games[1] ? 0 : (S.games[1]>S.games[0] ? 1 : -1);
+  if(lead===-1){ alert('Scores are tied — cannot end early.'); return; }
+  if(!confirm(`End match now? ${lead===0?S.team1:S.team2} leads and will be declared winner.`)) return;
+  S.winner=lead; S.over=true;
+  triggerMatchOver();
+};
+
+window.undoPoint = function() {
+  if(!H.length) return;
+  S=H.pop();
+  document.getElementById('btn-undo').disabled=H.length===0;
+  document.getElementById('match-over').classList.remove('show');
+  updateDisplay();
+};
+
+// ── DISPLAY ──
+function pts(n,inTB) {
+  if(inTB) return n;
+  return [0,'15','30','40'][Math.min(n,3)]??n;
 }
 
-/* ── DISPLAY ── */
 function updateDisplay() {
   if(!S) return;
-  // Names
-  ['sb-t1','btn-n1'].forEach(id=>document.getElementById(id).textContent=S.team1);
-  ['sb-t2','btn-n2'].forEach(id=>document.getElementById(id).textContent=S.team2);
-  document.getElementById('info-line').textContent =
-    `⏰ ${activeM.time} · Court ${activeM.court} · ${GRP_LBL[activeM.group]} · ${S.team1} vs ${S.team2}`;
-
-  // Serving
-  document.getElementById('sb-t1').className='sb-team'+(S.serving===0?' serving':'')+(S.winner===0?' winner-team':'');
-  document.getElementById('sb-t2').className='sb-team'+(S.serving===1?' serving':'')+(S.winner===1?' winner-team':'');
-
-  // Points
-  document.getElementById('sb-p1').textContent=ptLabel(S.points[0],S.inTB);
-  document.getElementById('sb-p2').textContent=ptLabel(S.points[1],S.inTB);
-  document.getElementById('sb-p1').className='sb-pts'+(S.points[0]>S.points[1]?' leading':'');
-  document.getElementById('sb-p2').className='sb-pts'+(S.points[1]>S.points[0]?' leading':'');
-
-  // Games
-  const g1disp = S.inTB ? `${S.games[0]}` : S.games[0];
-  const g2disp = S.inTB ? `${S.games[1]}` : S.games[1];
-  document.getElementById('sb-g1').textContent=S.inTB?`TB ${S.games[0]}`:S.games[0];
-  document.getElementById('sb-g2').textContent=S.inTB?`TB ${S.games[1]}`:S.games[1];
-  document.getElementById('sb-g1').className='sb-games'+(S.games[0]>S.games[1]?' leading':'');
-  document.getElementById('sb-g2').className='sb-games'+(S.games[1]>S.games[0]?' leading':'');
-
-  // Set badges
-  document.getElementById('sb-sets').innerHTML=S.setScores.map(s=>{
-    const cls=s.g1>s.g2?'won1':'won2';
-    return `<span class="set-badge ${cls}">${s.g1}–${s.g2}</span>`;
-  }).join('');
-
-  // Format
+  document.getElementById('sb-t1').textContent=S.team1;
+  document.getElementById('sb-t2').textContent=S.team2;
+  document.getElementById('sb-p1').textContent=pts(S.points[0],S.inTB);
+  document.getElementById('sb-p2').textContent=pts(S.points[1],S.inTB);
+  document.getElementById('sb-g1').textContent=S.games[0];
+  document.getElementById('sb-g2').textContent=S.games[1];
+  const setStr=S.setScores.map(([a,b])=>`${a}–${b}`).join('  ');
+  document.getElementById('sb-sets').textContent=setStr||'—';
   document.getElementById('sb-format').textContent=S.isKO?'NORMAL SET · KNOCKOUT':'SHORT SET · GROUP STAGE';
 
-  // Status
   const st=document.getElementById('game-status');
-  if(S.inTB){
+  if(S.inTB) {
     st.innerHTML=`<span class="tiebreak-badge">🎯 Tiebreak</span> First to 7 (lead by 2)`;
-  } else if(isDeuce(S)){
+  } else if(isDeuce(S)) {
+    st.innerHTML=`<span class="hl">Deuce</span>`;
+  } else if(isAdv(S)) {
     const d=S.points[0]-S.points[1];
-    if(d===0) st.innerHTML=`<span class="hl">Deuce</span>`;
-    else st.innerHTML=`Advantage <span class="hl">${d>0?S.team1:S.team2}</span>`;
+    st.innerHTML=`Advantage <span class="hl">${d>0?S.team1:S.team2}</span>`;
   } else {
-    st.innerHTML=`Games: <span class="hl">${S.games[0]} – ${S.games[1]}</span> &nbsp;·&nbsp; First to ${gameTarget(S)}`;
+    st.innerHTML=`Games: <span class="hl">${S.games[0]} – ${S.games[1]}</span> &nbsp;|&nbsp; Set ${S.sets[0]+S.sets[1]+1}`;
   }
+
+  document.getElementById('sb-t1').className='sb-team'+(S.serving===0?' serving':'')+(S.winner===0?' winner-team':'');
+  document.getElementById('sb-t2').className='sb-team'+(S.serving===1?' serving':'')+(S.winner===1?' winner-team':'');
 }
 
-/* ── PICKER RENDER ── */
-let pickerUnsubscribe = null;
-
-// Resolve W QFx / Loser SFx from completed matches
+// ── RESOLVE SLOTS ──
 function resolveSlot(md, slot) {
   const wm={'W QF1':'QF1','W QF2':'QF2','W QF3':'QF3','W QF4':'QF4','W SF1':'SF1','W SF2':'SF2'};
   const lm={'Loser SF1':'SF1','Loser SF2':'SF2'};
-  if(wm[slot]){const p=md[wm[slot]];if(p?.status==='done')return p.games_t1>p.games_t2?p.team1:p.team2;}
-  if(lm[slot]){const p=md[lm[slot]];if(p?.status==='done')return p.games_t1>p.games_t2?p.team2:p.team1;}
+  if(wm[slot]) {
+    const p=md[wm[slot]];
+    if(p && p.status==='done') return p.games_t1>p.games_t2 ? p.team1 : p.team2;
+  }
+  if(lm[slot]) {
+    const p=md[lm[slot]];
+    if(p && p.status==='done') return p.games_t1>p.games_t2 ? p.team2 : p.team1;
+  }
   return slot;
 }
 
+// ── SESSION ──
+const mySessionId = Math.random().toString(36).slice(2);
+let cachedMatchData = {};
+
+// ── PICKER RENDER ──
 function renderPicker(md) {
-  md=md||{};
+  md = md || {};
   cachedMatchData = md;
-  [{id:'sunday',list:SUNDAY},{id:'monday',list:MONDAY}].forEach(({id,list})=>{
-    document.getElementById(`list-${id}`).innerHTML=list.map(m=>{
-      const d=md[m.id]||{};
-      const st=d.status||'pending';
-      const t1=d.team1||m.team1, t2=d.team2||m.team2;
-      const isKO=m.group==='KO';
+
+  [{id:'sunday',list:SUNDAY},{id:'monday',list:MONDAY}].forEach(({id,list}) => {
+    const el = document.getElementById('list-'+id);
+    if(!el) return;
+    el.innerHTML = list.map(m => {
+      const d = md[m.id] || {};
+      const st = d.status || 'pending';
+      const isKO = m.group === 'KO';
       const isLockedByOther = st==='live' && d.lockedBy && d.lockedBy!==mySessionId;
       const isLockedByMe    = st==='live' && d.lockedBy && d.lockedBy===mySessionId;
 
       const statusBadge = isLockedByOther
-        ? `<span class="pick-status s-locked">🔒 In Progress</span>`
-        : {
-            pending:`<span class="pick-status s-pending">Pending</span>`,
-            live:   `<span class="pick-status s-live">🔴 ${isLockedByMe?'You · ':''}Live</span>`,
-            done:   `<span class="pick-status s-done">✓ Done</span>`,
-          }[st]||'';
+        ? '<span class="pick-status s-locked">🔒 In Progress</span>'
+        : (st==='pending' ? '<span class="pick-status s-pending">Pending</span>'
+          : st==='live'   ? '<span class="pick-status s-live">🔴 '+(isLockedByMe?'You · ':'')+'Live</span>'
+          : st==='done'   ? '<span class="pick-status s-done">✓ Done</span>' : '');
 
       const cardClass = isLockedByOther ? 'locked' : st;
 
       const rt1 = d.team1 || resolveSlot(md, m.team1);
       const rt2 = d.team2 || resolveSlot(md, m.team2);
-      const readyToStart = !rt1.startsWith('W ') && !rt1.startsWith('Loser') && !rt2.startsWith('W ') && !rt2.startsWith('Loser');
+      const readyToStart = !rt1.startsWith('W ') && !rt1.startsWith('Loser')
+                        && !rt2.startsWith('W ') && !rt2.startsWith('Loser');
 
-      const koInputs = isKO && !isLockedByOther && st!=='done' ? `
-        <div class="ko-inputs show" id="ko-${m.id}">
-          <button class="ko-start-btn" style="${!readyToStart?'opacity:.4;cursor:not-allowed':''}" onclick="startKO('${m.id}')" ${!readyToStart?'disabled':''}>🎾 Start Match</button>
-        </div>`:''
-      ;
+      const startBtn = isKO && !isLockedByOther && st!=='done'
+        ? '<div style="padding:10px 16px;border-top:1px solid rgba(132,75,255,.1);">'
+          + '<button class="ko-start-btn" '
+          + (readyToStart ? '' : 'disabled style="opacity:.4;cursor:not-allowed" ')
+          + 'onclick="startMatch(''+m.id+'')">🎾 Start Match</button></div>'
+        : '';
 
-window.startKO = function(id) {
-  const m=ALL.find(x=>x.id===id); if(!m) return;
-  const d = cachedMatchData[id]||{};
-  if(d.status==='live' && d.lockedBy && d.lockedBy!==mySessionId){
-    alert('⚠️ This match is already being scored by another referee.'); return;
+      const onclick = isLockedByOther ? '' : 'startMatch(''+m.id+'')';
+
+      return '<div style="border-radius:10px;overflow:hidden;border:1px solid rgba(132,75,255,.2);margin-bottom:8px;" class="'+cardClass+'">'
+        + '<div class="match-pick-btn '+cardClass+'" style="padding:14px 16px;">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">'
+        + '<div><div class="pick-time">⏰ '+m.time+' · C'+m.court+'</div>'
+        + '<span class="pick-grp '+(GRP_CLS[m.group]||'')+'">'+(m.group==='KO'?m.id:'Grp '+m.group)+'</span></div>'
+        + '<div class="pick-teams">'+rt1+' <em>vs</em> '+rt2+'</div>'
+        + statusBadge
+        + '</div></div>'
+        + startBtn
+        + '</div>';
+    }).join('');
+  });
+}
+
+// ── START MATCH ──
+window.startMatch = function(id) {
+  const m = ALL.find(x => x.id===id);
+  if(!m) return;
+  const d = cachedMatchData[id] || {};
+  if(d.status==='live' && d.lockedBy && d.lockedBy!==mySessionId) {
+    alert('⚠️ This match is already being scored by another referee.');
+    return;
   }
-
-  // Auto-resolve winner/loser placeholders from previous rounds
-  const t1 = resolveSlot(cachedMatchData, m.team1);
-  const t2 = resolveSlot(cachedMatchData, m.team2);
-  launchScoring(m,t1,t2);
-};
-
-window.selectMatch = function(id) {
-  const m=ALL.find(x=>x.id===id); if(!m) return;
-  const d = cachedMatchData[id]||{};
-  if(d.status==='live' && d.lockedBy && d.lockedBy!==mySessionId){
-    alert('⚠️ This match is already being scored by another referee.'); return;
+  const t1 = d.team1 || resolveSlot(cachedMatchData, m.team1);
+  const t2 = d.team2 || resolveSlot(cachedMatchData, m.team2);
+  if(t1.startsWith('W ') || t1.startsWith('Loser') || t2.startsWith('W ') || t2.startsWith('Loser')) {
+    alert('⏳ Previous matches not completed yet.');
+    return;
   }
-  launchScoring(m,m.team1,m.team2);
+  launchScoring(m, t1, t2);
 };
-
-// Unique session ID per referee tab
-const mySessionId = Math.random().toString(36).slice(2);
-let cachedMatchData = {};
 
 function launchScoring(m,t1,t2) {
-  activeM=m;
-  fbRef=ref(db,`matches/${m.id}`);
-  S=fresh(m,t1,t2);
-  H=[]; document.getElementById('btn-undo').disabled=true;
-  // Write live status + lock
-  update(fbRef,{status:'live',team1:t1,team2:t2,lockedBy:mySessionId});
+  activeM = m;
+  fbRef = ref(db, 'matches/'+m.id);
+  S = fresh(m,t1,t2);
+  H = [];
+  document.getElementById('btn-undo').disabled = true;
+  update(fbRef, {status:'live', team1:t1, team2:t2, lockedBy:mySessionId});
   updateDisplay();
   showScreen('scoring');
 }
 
 window.goBack = function() {
-  // Release lock if we own it
-  if(fbRef && activeM){
-    const d = cachedMatchData[activeM.id]||{};
-    if(d.lockedBy===mySessionId && d.status!=='done'){
-      update(fbRef,{status:'pending',lockedBy:null});
+  if(fbRef && activeM) {
+    const d = cachedMatchData[activeM.id] || {};
+    if(d.lockedBy===mySessionId && d.status!=='done') {
+      update(fbRef, {status:'pending', lockedBy:null});
     }
   }
   S=null; H=[]; activeM=null; fbRef=null;
   showScreen('picker');
 };
 
-/* ── SCREENS ── */
+// ── SCREENS ──
 function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(s=>{
+  document.querySelectorAll('.screen').forEach(s => {
     s.classList.remove('active');
-    s.style.display='';
+    s.style.display = 'none';
   });
-  const el=document.getElementById(`screen-${name}`);
-  if(el){ el.classList.add('active'); }
+  const el = document.getElementById('screen-'+name);
+  if(el) {
+    el.classList.add('active');
+    el.style.display = (name === 'login') ? 'flex' : 'block';
+  }
 }
 
-/* ── FIREBASE LISTENER ── */
-onValue(ref(db,'matches'),snap=>renderPicker(snap.val()));
+// ── FIREBASE LISTENER ──
+onValue(ref(db,'matches'), snap => renderPicker(snap.val()));
 
-/* ── AUTH ── */
-const PWD='rpt2026ref';
-window.doLogin=function(){
-  if(document.getElementById('pwd-input').value===PWD){
-    document.getElementById('login-error').style.display='none';
+// ── AUTH ──
+const PWD = 'rpt2026ref';
+window.doLogin = function() {
+  if(document.getElementById('pwd-input').value === PWD) {
+    document.getElementById('login-error').style.display = 'none';
     sessionStorage.setItem('ref-auth','1');
     showScreen('picker');
   } else {
-    document.getElementById('login-error').style.display='block';
+    document.getElementById('login-error').style.display = 'block';
   }
 };
-window.doLogout=function(){
+window.doLogout = function() {
   sessionStorage.removeItem('ref-auth');
   showScreen('login');
-  document.getElementById('pwd-input').value='';
+  document.getElementById('pwd-input').value = '';
 };
 if(sessionStorage.getItem('ref-auth')==='1') showScreen('picker');
 
-/* ── TOAST ── */
-function toast(msg,type='success'){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className=`toast ${type} show`;
-  setTimeout(()=>t.classList.remove('show'),3000);
+// ── TOAST ──
+function toast(msg,type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast '+type+' show';
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
 </script>
 </body>
