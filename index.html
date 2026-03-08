@@ -940,17 +940,19 @@ footer span{background:linear-gradient(90deg,#b36cff,#43c0ff);-webkit-background
 
     // Find best 3rd-place team across groups
     const thirds = ['A','B','C'].map(g => ({...ranked[g][2], grp:g}))
-      .filter(t => t.p > 0)
+      .filter(t => t.p === 3)
       .sort((a,b) => b.pts-a.pts || b.gw-a.gw);
 
-    const resolve = (slot) => {
+    const resolve = (slot, defaultLabel) => {
       const map = {
         '1A': ranked.A[0], '2A': ranked.A[1],
         '1B': ranked.B[0], '2B': ranked.B[1],
         '1C': ranked.C[0], '2C': ranked.C[1],
         '3rd Best': thirds[0],
       };
-      return map[slot]?.name || slot;
+      const team = map[slot];
+      // Only show real name if the team has played all their group matches (p===3)
+      return (team && team.p === 3) ? team.name : defaultLabel;
     };
 
     // QF slot spans: [matchId, [team1slot, team2slot]]
@@ -965,8 +967,8 @@ footer span{background:linear-gradient(90deg,#b36cff,#43c0ff);-webkit-background
       const el = document.getElementById(id);
       if (!el) return;
       const rows = el.querySelectorAll('.t span:first-child');
-      if (rows[0]) rows[0].textContent = resolve(s1);
-      if (rows[1]) rows[1].textContent = resolve(s2);
+      if (rows[0]) rows[0].textContent = resolve(s1, s1);
+      if (rows[1]) rows[1].textContent = resolve(s2, s2);
     });
 
     // Update KO match results in bracket (SF and Final) from Firebase
